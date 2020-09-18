@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>W4VES</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <script src="./vector.js"></script>
+  <script src="./SvgPlus.js"></script>
+  <body>
+    <svg viewBox ="-1 -2 8.3 4" width = "100vw" id = "svg2" stroke-width = '0.1' fill = "none">
+      <path d = "M0,0" stroke = "blue"></path>
+    </svg>
+    <svg viewBox = "-1 -2 8.3 4" width = "100vw" id = "svg" stroke-width = '0.02' fill = "none">
+      <path d = "" stroke = "red"></path>
+    </svg>
+  </body>
+  <script type="text/javascript">
+    let svg = SVGPlus.getElementById('svg');
+    let path = svg.children[0];
+    // let points = SVGPlus.create('path', {fill: 'none', stroke: 'green', 'stroke-width': '0.05', 'stroke-linecap': 'round'})
+    // console.log(svg.);
+
+    let d1 = 1;
+    let d2 =0.5523;
+
+    let p1 = new Vector(0,              0);
+    let p2 = new Vector(d1*Math.PI/2,   d1);
+
+    let c1 = p1.add(d2);
+    let c2 = p2.sub(new Vector(d2, 0));
+
+    let split = 0.9
+    let r1 = p1.getPointAtDiv(c1, split);
+    let r2 = c1.getPointAtDiv(c2, split);
+    let r3 = c2.getPointAtDiv(p2, split);
+
+
+    let nc0 = r1.getPointAtDiv(r2, split);
+    c1 = r2.getPointAtDiv(r3, split);
+    p1 = nc0.getPointAtDiv(c1, split);
+    c2 = r3;
+
+
+
+    let p3 = new Vector(d1*Math.PI,     0);
+    let p4 = new Vector(d1*3*Math.PI/2, -d1);
+    let p5 = new Vector(d1*2*Math.PI,   0);
+
+    path.push('M', p1);
+    path.push('C', c1, c2, p2);
+    path.push('C', p2.add(new Vector(d2, 0)), p3.add(new Vector(-d2, d2)), p3);
+    path.push('S', p4.add(new Vector(-d2, 0)), p4);
+    path.push('S', p5.sub(d2), p5);
+
+    let svg2 = SVGPlus.getElementById('svg2');
+    let path2 = svg2.children[0];
+
+    for (var i = 0; i < Math.PI*2; i+= 0.01){
+      path2.push(new Vector(i, Math.sin(i)))
+    }
+    // path.push(p2);
+    // path.push(p3);
+    // path.push(p4);
+    // path.push(p5);
+  </script>
+
+  <style type = "text/css">
+    svg{
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      /* background: rgba(0,100,222,0.4); */
+    }
+  </style>
+
+</html>
