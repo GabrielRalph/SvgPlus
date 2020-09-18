@@ -47,17 +47,17 @@
     let p4 = new Vector(d1*3*Math.PI/2, -d1);
     let p5 = new Vector(d1*2*Math.PI,   0);
 
-    path.push('M', p1);
-    path.push('C', c1, c2, p2);
-    path.push('C', p2.add(new Vector(d2, 0)), p3.add(new Vector(-d2, d2)), p3);
-    path.push('S', p4.add(new Vector(-d2, 0)), p4);
-    path.push('S', p5.sub(d2), p5);
+    path.M(p1)
+    .C(c1, c2, p2)
+    .C(p2.add(new Vector(d2, 0)), p3.add(new Vector(-d2, d2)), p3)
+    .S(p4.add(new Vector(-d2, 0)), p4)
+    .S(p5.sub(d2), p5)
 
     let svg2 = SVGPlus.getElementById('svg2');
     let path2 = svg2.children[0];
 
     for (var i = 0; i < Math.PI*2; i+= 0.01){
-      path2.push(new Vector(i, Math.sin(i)))
+      path2.L(new Vector(i, Math.sin(i)))
     }
     // path.push(p2);
     // path.push(p3);
