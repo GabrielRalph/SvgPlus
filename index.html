@@ -55,10 +55,16 @@
 
     let svg2 = SVGPlus.getElementById('svg2');
     let path2 = svg2.children[0];
-
+    let marks = svg2.createChild('path', {stroke: 'green', 'stroke-width': '0.5', fill: 'none'})
     for (var i = 0; i < Math.PI*2; i+= 0.01){
       path2.L(new Vector(i, Math.sin(i)))
     }
+
+    path2.addEventListener(('click'), (e) => {
+      let click_point = new Vector(e)
+      let cPoint = path.closest(click_point);
+      marks.M(cPoint.p).L(cPoint.p);
+    })
     // path.push(p2);
     // path.push(p3);
     // path.push(p4);
@@ -71,6 +77,10 @@
       top: 0;
       bottom: 0;
       /* background: rgba(0,100,222,0.4); */
+      stroke-linecap: round;
+    }
+    #svg{
+      pointer-events: none;
     }
   </style>
 

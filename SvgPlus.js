@@ -130,6 +130,13 @@ class SvgElement{
     this.__add_svgPlus_to_children(this.el);
   }
 
+  set innerHTML(val){
+    this.el.innerHTML = val;
+  }
+  get innerHTML(){
+    return this.el.innerHTML
+  }
+
   get x(){
     return this._x;
   }
@@ -212,6 +219,12 @@ class SvgElement{
   }
   getProperty(name){
     this.el.style.getProperty(name)
+  }
+
+  set onclick(val) {this.el.onclick = val}
+  get onclick() { return this.el.onclick }
+  addEventListener(name, callback){
+    this.el.addEventListener(name, callback);
   }
 
   set styles(styles){
@@ -560,6 +573,7 @@ class CPoint extends LinkItem{
   'V y' or 'v dy'
   'C x1, y1, x2, y2, x, y' or 'c dx1, dy1, dx2, dy2, dx, dy'
   'Q x1, y1, x, y' or 'q dx1 dy1, dx dy'
+  'S x, y' or 's dx, dy'
   'T x, y' or 't dx, dy'
   'A rx ry x-axis-rotation large-arc-flag sweep-flag x y' or 'a rx ry x-axis-rotation large-arc-flag sweep-flag dx dy' */
   set cmd(string){
@@ -701,6 +715,7 @@ class CPoint extends LinkItem{
   }
 
   dist(v){
+    console.log(v);
     return this.p.dist(v);
   }
 
@@ -743,13 +758,14 @@ class CPoint extends LinkItem{
       case 'T': return `${this.cmd_type}${this._v_s('c1')}${cmr(this.p)}${this._v_s('p')}`;
 
       //    Arc: rx, ry, x-axis-rotation, large-arc-flag, sweep-flag, x, y
-      case 'A': return `${this.cmd_type}${this._v_s('r')},${x_axis_rotation},${large_arc_flag},${sweep_flag}${cmr(this.p)}${this._v_s('p')}`;
+      case 'A': return `${this.cmd_type}${this._v_s('r')},${this.x_axis_rotation},${this.large_arc_flag},${this.sweep_flag}${cmr(this.p)}${this._v_s('p')}`;
 
       //    Close:
       case 'Z': return `${this.cmd_type}`
     }
   }
 }
+
 class DPath extends LinkList{
   constructor(string = null){
     super();
@@ -757,6 +773,139 @@ class DPath extends LinkList{
       this.d_string = string;
     }
   }
+
+  //Path push functions
+    L(v){
+      if (v instanceof Vector){
+        this.push(new CPoint(`L${v}`))
+        return this
+      }else{
+        throw 'Error:\nL takes a single vector parameter';
+      }
+    }
+    l(v){
+      if (v instanceof Vector){
+        this.push(new CPoint(`l${v}`))
+        return this
+      }else{
+        throw 'Error:\nl takes a single vector parameter';
+      }
+    }
+
+    M(v){
+      if (v instanceof Vector){
+        this.push(new CPoint(`M${v}`))
+        return this
+      }else{
+        throw 'Error:\nM takes a single vector parameter';
+      }
+    }
+
+    Q(v1, v2){
+      if (v1 instanceof Vector && v2 instanceof Vector){
+        this.push(new CPoint(`Q${v1},${v2}`))
+        return this
+      }else{
+        throw 'Error:\nQ takes two vectors as its parameters';
+      }
+    }
+    q(v1, v2){
+      if (v1 instanceof Vector && v2 instanceof Vector){
+        this.push(new CPoint(`q${v1},${v2}`))
+        return this
+      }else{
+        throw 'Error:\nq takes two vectors as its parameters';
+      }
+    }
+
+    S(v1, v2){
+      if (v1 instanceof Vector && v2 instanceof Vector){
+        this.push(new CPoint(`S${v1},${v2}`))
+        return this
+      }else{
+        throw 'Error:\nS takes two vectors as its parameters';
+      }
+    }
+    s(v1, v2){
+      if (v1 instanceof Vector && v2 instanceof Vector){
+        this.push(new CPoint(`s${v1},${v2}`))
+        return this
+      }else{
+        throw 'Error:\ns takes two vectors as its parameters';
+      }
+    }
+
+    T(v1, v2){
+      if (v1 instanceof Vector && v2 instanceof Vector){
+        this.push(new CPoint(`T${v1},${v2}`))
+        return this
+      }else{
+        throw 'Error:\nT takes two vectors as its parameters';
+      }
+    }
+    t(v1, v2){
+      if (v1 instanceof Vector && v2 instanceof Vector){
+        this.push(new CPoint(`t${v1},${v2}`))
+        return this
+      }else{
+        throw 'Error:\nt takes two vectors as its parameters';
+      }
+    }
+
+    __boolHelp(val){
+      if (typeof val === 'number'){
+        return val > 0 ? 1 : 0;
+      }else if (typeof val === 'boolean'){
+        return val ? 1 : 0;
+      }else {
+        return null
+      }
+    }
+
+    A(r, xar, laf, sf, v1){
+      xar = this.__boolHelp(xar);
+      laf = this.__boolHelp(laf);
+      sf = this.__boolHelp(sf);
+      if (r instanceof Vector && v1 instanceof Vector && xar != null && laf != null && sf != null){
+        this.push(new CPoint(`A${r},${xar},${laf},${sf},${v1}`))
+        return this
+      }else{
+        throw 'Error:\nA takes the parameters:\nr: Vector\nx-axis-rotation: Boolean (1,0)/(true,false)\nlarge-arc-flag: Boolean\nsweep-flag: Boolean\nv: Vector';
+      }
+    }
+    a(r, xar, laf, sf, v1){
+      xar = this.__boolHelp(xar);
+      laf = this.__boolHelp(laf);
+      sf = this.__boolHelp(sf);
+      if (r instanceof Vector && v1 instanceof Vector && xar != null && laf != null && sf != null){
+        this.push(new CPoint(`a${r},${xar},${laf},${sf},${v1}`))
+        return this
+      }else{
+        throw 'Error:\na takes the parameters:\nr: Vector\nx-axis-rotation: Boolean (1,0)/(true,false)\nlarge-arc-flag: Boolean\nsweep-flag: Boolean\nv: Vector';
+      }
+    }
+
+    C(v1, v2, v3){
+      if (v1 instanceof Vector && v2 instanceof Vector && v3 instanceof Vector){
+        this.push(new CPoint(`C${v1},${v2},${v3}`))
+        return this
+      }else{
+        throw 'Error:\nC takes three vectors as its parameters';
+      }
+    }
+    c(v1, v2, v3){
+      if (v1 instanceof Vector && v2 instanceof Vector && v3 instanceof Vector){
+        this.push(new CPoint(`c${v1},${v2},${v3}`))
+        return this
+      }else{
+        throw 'Error:\nc takes three vectors as its parameters';;
+      }
+    }
+
+    Z(){
+      this.push(new CPoint(`Z`))
+      return this
+    }
 
   set d_string(string){
     if (typeof string !== 'string'){
@@ -847,50 +996,74 @@ class SvgPath extends SvgGeometry{
     return new CPoint(cmd);
   }
 
+
+
+//Path push functions
   L(v){
-    if (v instanceof Vector){
-      this.d.push(new CPoint(`L${v}`))
-      return this
-    }else{
-      throw 'Error invalid input';
-    }
+    this.d.L(v)
+    return this;
   }
-  M(v){
-    if (v instanceof Vector){
-      this.d.push(new CPoint(`M${v}`))
-      return this
-    }else{
-      throw 'Error invalid input';
-    }
-  }
-  Q(v1, v2){
-    if (v1 instanceof Vector && v2 instanceof Vector){
-      this.d.push(new CPoint(`Q${v1},${v2}`))
-      return this
-    }else{
-      throw 'Error invalid input';
-    }
-  }
-  S(v1, v2){
-    if (v1 instanceof Vector && v2 instanceof Vector){
-      this.d.push(new CPoint(`S${v1},${v2}`))
-      return this
-    }else{
-      throw 'Error invalid input';
-    }
-  }
-  C(v1, v2, v3){
-    if (v1 instanceof Vector && v2 instanceof Vector && v3 instanceof Vector){
-      this.d.push(new CPoint(`C${v1},${v2},${v3}`))
-      return this
-    }else{
-      throw 'Error invalid input';
-    }
-  }
-  Z(){
-    this.d.push(new CPoint(`Z`))
+  l(v){
+    this.d.l(v)
     return this
   }
+
+  M(v){
+    this.d.M(v)
+    return this
+  }
+
+  Q(v1, v2){
+    this.d.Q(v1, v2)
+    return this
+  }
+  q(v1, v2){
+    this.d.q(v1, v2)
+    return this
+  }
+
+  S(v1, v2){
+    this.d.S(v1, v2)
+    return this
+  }
+  s(v1, v2){
+    this.d.s(v1, v2)
+    return this
+  }
+
+  T(v1, v2){
+    this.d.T(v1, v2)
+    return this
+  }
+  t(v1, v2){
+    this.d.t(v1, v2);
+    return this
+  }
+
+  A(r, xar, laf, sf, v1){
+    this.d.A(r, xar, laf, sf, v1)
+    return this
+  }
+  a(r, xar, laf, sf, v1){
+    this.d.a(r, xar, laf, sf, v1)
+    return this
+  }
+
+
+  C(v1, v2, v3){
+    this.d.C(v1, v2, v3)
+    return this
+  }
+  c(v1, v2, v3){
+    this.d.c(v1, v2, v3)
+    return this
+  }
+
+  Z(){
+    this.d.Z()
+    return this
+  }
+
   push(val){
     this.d.push(val);
     return this
@@ -907,5 +1080,20 @@ class SvgPath extends SvgGeometry{
   }
   clear(){
     this.d.clear();
+  }
+
+  closest(point){
+    let d = Infinity;
+    let p = null;
+    console.log(point);
+    this.d.forEach((cPoint) => {
+      console.log(cPoint);
+      console.log(cPoint.dist(point));
+      if ( cPoint.dist(point) < d ){
+        d = cPoint.dist(point);
+        p = cPoint;
+      }
+    });
+    return p;
   }
 }
