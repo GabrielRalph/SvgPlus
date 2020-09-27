@@ -944,7 +944,6 @@ class DPath extends LinkList{
       }else{
         point.add(last);
         point.cmd_type = point.cmd_type.toUpperCase();
-        console.log(point);
         last = point.p;
       }
     });
@@ -1132,10 +1131,7 @@ class SvgPath extends SvgGeometry{
   closest(point){
     let d = Infinity;
     let p = null;
-    console.log(point);
     this.d.forEach((cPoint) => {
-      console.log(cPoint);
-      console.log(cPoint.dist(point));
       if ( cPoint.dist(point) < d ){
         d = cPoint.dist(point);
         p = cPoint;
