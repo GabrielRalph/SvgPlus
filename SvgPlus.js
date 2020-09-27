@@ -694,10 +694,19 @@ class CPoint extends LinkItem{
     return `${this[val].x}${this[val].y>=0?',':''}${this[val].y}`
   }
 
+  isAbsolute(){
+    return (this.cmd_type && (this.cmd_type == this.cmd_type.toUpperCase()))
+  }
+
   add(v){
     this.p = this.p.add(v);
     this.c1 = this.c1.add(v);
     this.c2 = this.c2.add(v);
+  }
+  sub(v){
+    this.p = this.p.sub(v);
+    this.c1 = this.c1.sub(v);
+    this.c2 = this.c2.sub(v);
   }
   div(v){
     this.p = this.p.div(v);
@@ -925,6 +934,29 @@ class DPath extends LinkList{
     cmds.forEach((cmd) => {
       this.push(new CPoint(cmd));
     });
+  }
+
+  makeAbsolute(){
+    let last = this.start.p;
+    this.forEach((point) => {
+      if (point.isAbsolute()){
+        last = point.p;
+      }else{
+        point.add(last);
+        point.cmd_type = point.cmd_type.toUpperCase();
+        last = point.p;
+      }
+    });
+  }
+
+  makeRelative(){
+    this.makeAbsolute();
+    let cur = this.end;
+    while (cur != this.start){
+      cur.sub(cur.last.p);
+      cur.cmd_type = cur.cmd_type.toLowerCase();
+      cur = cur.last;
+    }
   }
 
   toString(){
