@@ -422,11 +422,13 @@ class LinkList{
     if (this.end == null || this.start == null){
       return null
     }else if (this.end == this.start){
+      this.length = 0;
       let temp = this.end;
       this.end = null;
       this.start = null;
       return temp;
     }else{
+      this.length --;
       let oldl = this.end;
       let newl = this.end.last
       oldl.break();
@@ -441,11 +443,15 @@ class LinkList{
     if (this.end == null || this.start == null){
       return null
     }else if (this.end == this.start){
+      this.length = 0;
+      
       let temp = this.start;
       this.end = null;
       this.start = null;
       return temp;
     }else{
+      this.length --;
+
       let oldl = this.start;
       let newl = this.start.next;
       oldl.break();
