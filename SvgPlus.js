@@ -442,7 +442,7 @@ class LinkList{
       return null
     }else if (this.end == this.start){
       let temp = this.start;
-      thid.end = null;
+      this.end = null;
       this.start = null;
       return temp;
     }else{
