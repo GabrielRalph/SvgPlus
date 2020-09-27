@@ -939,6 +939,12 @@ class DPath extends LinkList{
   makeAbsolute(){
     let last = this.start.p;
     this.forEach((point) => {
+      if (point.cmd_type == 'V'){
+        point.x = last.x;
+      }
+      if (point.cmd_type == 'H'){
+        point.y = last.y;
+      }
       if (point.isAbsolute()){
         last = point.p;
       }else{
