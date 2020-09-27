@@ -944,6 +944,7 @@ class DPath extends LinkList{
       }else{
         point.add(last);
         point.cmd_type = point.cmd_type.toUpperCase();
+        console.log(point);
         last = point.p;
       }
     });
@@ -975,8 +976,12 @@ class SvgPath extends SvgGeometry{
     this.d = new DPath(this.getAttribute('d'));
 
     this.d.addUpdateListener(() => {
-      this.setAttribute('d', this.d_string);
+      this.update();
     })
+  }
+
+  update(){
+    this.setAttribute('d', this.d_string);
   }
 
   set d_string(val){
@@ -1112,6 +1117,16 @@ class SvgPath extends SvgGeometry{
   }
   clear(){
     this.d.clear();
+  }
+
+  makeAbsolute(){
+    this.d.makeAbsolute();
+    this.update();
+  }
+
+  makeRelative(){
+    this.d.makeRelative();
+    this.update();
   }
 
   closest(point){
