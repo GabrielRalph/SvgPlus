@@ -99,8 +99,20 @@
     </div>
     <svg viewBox = "-20 -20 300 200" width = "100vw" id = "svg">
     </svg>
+
   </body>
   <script type="text/javascript">
+  let vy = (x, y) => {
+  	let res;
+  	try {
+  		res = new Vector(x, y);
+  	}catch(e){
+  		throw e;
+  	}
+  	return res;
+  }
+    let v = vy(0, '44');
+    console.log(v);
     let it = new Vue({
       el: '#input',
       data: {

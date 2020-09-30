@@ -126,6 +126,7 @@ let SVGPlus = {
 class SvgElement{
   constructor(el){
     this.el = SVGPlus.parseElement(el);
+    this._co_labels = ['x', 'y']
     this.el.svgPlus = this;
     this.__add_svgPlus_to_children(this.el);
   }
@@ -146,13 +147,13 @@ class SvgElement{
   set x(val){
     if (typeof val === 'number'){
       this._x = val;
-      this.setAttribute('x', val)
+      this.setAttribute(this._co_labels[0], val)
     }
   }
   set y(val){
     if (typeof val === 'number'){
       this._y = val;
-      this.setAttribute('y', val)
+      this.setAttribute(this._co_labels[1], val)
     }
   }
 
@@ -444,7 +445,7 @@ class LinkList{
       return null
     }else if (this.end == this.start){
       this.length = 0;
-      
+
       let temp = this.start;
       this.end = null;
       this.start = null;
@@ -971,6 +972,8 @@ class DPath extends LinkList{
     }
   }
 
+
+
   toString(){
     let str = ''
     if (this.end == null) {return str}
@@ -989,6 +992,20 @@ class SvgPath extends SvgGeometry{
     this.d.addUpdateListener(() => {
       this.update();
     })
+
+  }
+
+  splitAtLength(length){
+    let temp = new SvgPath(SVGPlus.make('path'));
+    let last = 0;
+    this.d.forEach((link) => {
+      temp.push(link);
+      link.total_length = temp.getTotalLength()
+      if (link.total_length > length && last.total_length < length){
+        console.log(last);
+      }
+      last = link;
+    });
   }
 
   update(){
@@ -1150,5 +1167,29 @@ class SvgPath extends SvgGeometry{
       }
     });
     return p;
+  }
+}
+
+class SvgEllipse extends SvgGeometry{
+  constructor(el){
+    super(el);
+    this._co_labels = ['cx', 'cr'];
+
+  }
+
+  set r(val){
+    let r = new Vector(val)
+
+    this.el.setProps({
+      rx: r.x,
+      ry: r.y,
+    })
+  }
+
+  set add(val){
+    this.pos = this.pos.add(val);
+  }
+  set sub(val){
+    this.pos = this.pos.sub(val);
   }
 }

@@ -135,6 +135,7 @@ class Board{
     .L(this.P_G.addV(this.border))
     .A(this.b_r, 0, 0, 1, this.P_G.addH(-this.border))
     .Z()
+    outer.splitAtLength(33)
   }
 
   draw_holes(){

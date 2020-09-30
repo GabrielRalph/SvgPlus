@@ -1,37 +1,161 @@
+// let v̄ = (x, y) => {
+// 	let res;
+// 	try {
+// 		res = new Vector(x, y);
+// 	}catch(e){
+// 		throw e;
+// 	}
+// 	return res;
+// }
+
 class Vector{
-	constructor(x = 0, y = 0){
+	constructor(x = 0, y = null){
     this.x = x;
     this.y = y;
 
 		// If the first parameter is an array
-    if(x instanceof Array){
-			if (typeof y !== 'number') y = 0;
+    if(x instanceof Array && typeof x !== 'string'){
+			try{
+				y = y == null ? 0: y;
+				y = parseFloat(y);
+				if (Number.isNaN(y)){
+					throw `\nNumber conversion:\nNumber | parseFloat(String)`
+				}
 
+			}catch (e){
+				y = 0;
+				throw `\nVector Input Format:\n(array: Array, offset: Number)\n${e}`
+			}
+
+			if (y >= x.length - 1){
+				y = 0;
+			}
 			//Fill the array using y as an offset, if y is not a number it will be set as Zero
-      this.x = x[y]
-      this.y = x[y + 1]
+			try{
+				this.x = parseFloat(x[y]);
+				this.y = parseFloat(x[y + 1]);
+				if (Number.isNaN(this.y) || Number.isNaN(this.x)){
+					throw `\nNumber conversion:\nNumber | parseFloat(String)`
+				}
+
+			}catch(e){
+				this.x = 0;
+				this.y = 0;
+				throw `${e}\nVector Input Format:\n(array, offset*) ==> V ( array[0 + offset*], array[1 + offset*] )\n\n*note: offset - optional, defaults to 0`
+			}
 
 		//If x is a vector or object set accordingly
-    }else if(x instanceof Vector || x instanceof Object){
-      this.x = typeof x.x === 'number' || typeof x.x === 'string' ? x.x : 0;
-      this.y = typeof x.y === 'number' || typeof x.y === 'string' ? x.y : 0;
-    }
-		this.x = parseFloat(this.x)
-		this.y = parseFloat(this.y)
+	}else if(x instanceof Vector || x instanceof Object || typeof x === 'object' && x !== null){
+			if ('x' in x && 'y' in x){
+				try {
+					this.x = parseFloat(x.x);
+					this.y = parseFloat(x.y);
+					if (Number.isNaN(this.y) || Number.isNaN(this.x)){
+						throw `\nNumber conversion:\nNumber | parseFloat(String)`
+					}
+
+				}catch (e){
+					this.x = 0;
+					this.y = 0;
+					throw `\nVector Input Format:\n(obj)\nobj.x: Number|String(as number)\nobj.y: Number|String`
+				}
+			}else{
+				if (y instanceof Object || typeof y === 'object' && y !== null){
+					if (('x' in y && 'y' in y) && (y.x in x && y.y in x)){
+						try {
+							this.x = parseFloat(x[y.x]);
+							this.y = parseFloat(x[y.y]);
+							if (Number.isNaN(this.y) || Number.isNaN(this.x)){
+								throw `\nNumber conversion:\nNumber | parseFloat(String)`
+							}
+
+						}catch (e){
+							this.x = 0;
+							this.y = 0;
+							throw `\nVector Input Format:\n(obj, keys)\nobj[keys.x]: Number|String(as number)\nobj[keys.y]: Number|String`
+						}
+
+					}else{
+						this.x = 0;
+						this.y = 0;
+						throw `\nVector Input Format:\n(obj, keys) ==> V ( obj[keys.x], obj[keys.y] )\n(obj) ==> V ( obj.x, obj.y )`
+					}
+				}else{
+					throw `\nVector Input Format:\n(obj, keys) ==> V ( obj[keys.x], obj[keys.y] )\n(obj) ==> V ( obj.x, obj.y )`
+				}
+			}
+    }else if(y === null){
+			try {
+				this.x = parseFloat(x);
+				this.y = this.x;
+				if (Number.isNaN(this.y) || Number.isNaN(this.x)){
+					throw `\nNumber conversion:\nNumber | parseFloat(String)`
+				}
+
+			}catch (e){
+				this.x = 0;
+				this.y = 0;
+				throw `\nVector Input Format:\n(param) ==> V ( param.x, param.y )\n\nor\n\n(param) ==> V (param, param)\nwhere\nparam: Number|String )`
+			}
+		}else{
+			try {
+				this.x = parseFloat(this.x);
+				this.y = parseFloat(this.y);
+				if (Number.isNaN(this.y) || Number.isNaN(this.x)){
+					throw `\nNumber conversion:\nNumber | parseFloat(String)`
+				}
+			}catch (e){
+				this.x = 0;
+				this.y = 0;
+				throw `Valid Vector Input:\n(obj) ==> V ( obj.x, obj.y )\n(obj, keys) ==> V ( obj[keys.x], obj[keys.y] )\n(array, offset*) ==> V ( array[0 + offset*], array[1 + offset*] )\n(num) ==> V (num, num)\n(x, y) ==> V (x, y)\n\nWhere V (Number, Number)\nnumbers as strings accepted`
+			}
+		}
 	}
 
 	round(){
 		return new Vector(Math.round(this.x), Math.round(this.y))
 	}
 
-	add(p1, y = null){
-    if(p1 instanceof Vector){
-      return new Vector(this.x + p1.x, this.y + p1.y);
-    }else if (typeof p1 === 'number' && y == null){
-      return new Vector(this.x + p1, this.y + p1);
-    }else if (typeof p1 === 'number' && typeof y === 'number'){
-			return this.add(new Vector(p1, y));
+
+
+	add(p1 = 0, p2 = null){
+		let v2;
+		try{
+			v2 = new Vector(p1, p2);
+		}catch (e){
+			throw `Error on add:\n\n${e}`
 		}
+		return new Vector(this.x + v2.x, this.y + v2.y)
+	}
+	sub(p1 = 0, p2 = null){
+		let v2;
+		try{
+			v2 = new Vector(p1, p2);
+		}catch (e){
+			throw `Error on sub:\n\n${e}`
+		}
+		return new Vector(this.x - v2.x, this.y - v2.y)
+	}
+
+	mul(p1 = 0, p2 = null){
+		let v2;
+		try{
+			v2 = new Vector(p1, p2);
+		}catch (e){
+			throw `Error on mul:\n\n${e}`
+		}
+		return new Vector(this.x * v2.x, this.y * v2.y)
+	}
+
+	div(p1 = 0, p2 = null){
+		let v2;
+		try{
+			v2 = new Vector(p1, p2);
+		}catch (e){
+			v2 = new Vector(1, 1);
+			throw `Error on div:\n\n${e}`
+		}
+		return new Vector(this.x / v2.x, this.y / v2.y)
 	}
 
 	addV(y){
@@ -45,34 +169,19 @@ class Vector{
 		}
 	}
 
-	sub(p1, y = null){
-    if(p1 instanceof Vector){
-      return new Vector(this.x - p1.x, this.y - p1.y);
-    }else if (typeof p1 === 'number' && y == null){
-      return new Vector(this.x - p1, this.y - p1);
-    }else if (typeof p1 === 'number' && typeof y === 'number'){
-			return this.sub(new Vector(p1, y));
-		}
-	}
-	div(p1){
-    if(p1 instanceof Vector){
-      return new Vector(this.x / p1.x, this.y / p1.y)
-    }else{
-      return new Vector(this.x / p1, this.y / p1)
-    }
-	}
-  mul(p1){
-    if(p1 instanceof Vector){
-      return new Vector(this.x * p1.x, this.y * p1.y)
-    }else{
-      return new Vector(this.x * p1, this.y * p1)
-    }
-	}
+
 	assign(){
 		return new Vector(this.x, this.y)
 	}
 
-	grad(v2){
+	grad(p1 = 0, p2 = null){
+		let v2;
+		try{
+			v2 = new Vector(p1, p2);
+		}catch (e){
+			throw `Error on grad:\n\n${e}`
+		}
+
 		if (v2.x - this.x == 0){
 			return 10000000000
 		}
@@ -88,9 +197,13 @@ class Vector{
   }
 
 	distToLine(p1, p2){
-		let line = p2.sub(p1).rotate(Math.PI/2)
-	  let d = line.dot(this.sub(p1))/line.norm()
-	  return Math.abs(d)
+		if (p1 instanceof Vector && p2 instanceof Vector){
+			let line = p2.sub(p1).rotate(Math.PI/2)
+			let d = line.dot(this.sub(p1))/line.norm()
+			return Math.abs(d)
+		}else{
+			return null
+		}
 	}
 
 	// (x + iy)*(cos(t) + isin(t)) = xcos(t) - ysin(t) + i(xsin(t) + ycos(t))
