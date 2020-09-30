@@ -236,7 +236,7 @@ class SvgElement{
     for (var style in styles){
       var value = `${styles[style]}`
       if (value != null){
-        this.el.setProperty(style, value)
+        this.el.style.setProperty(style, value)
       }
     }
   }
