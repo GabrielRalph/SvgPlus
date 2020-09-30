@@ -233,7 +233,7 @@ class SvgElement{
       throw `Error setting styles:\nstyles must be set using an object, not ${typeof styles}`
       return
     }
-    for (style in styles){
+    for (var style in styles){
       value = `${styles[style]}`
       if (value != null){
         this.el.setProperty(style, value)
