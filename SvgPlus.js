@@ -1,3 +1,6 @@
+var vector_script = document.createElement("script");  // create a script DOM node
+vector_script.src = 'https://www.svg.plus/vectors.js';  // set its src to the provided URL
+document.head.appendChild(vector_script);
 let SVGPlus = {
   getElementById: function(id){
     let el = document.getElementById(id);
