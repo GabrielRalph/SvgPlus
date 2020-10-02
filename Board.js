@@ -1,6 +1,8 @@
 class Board{
   constructor(el){
+
     this.el = new SvgElement(el);
+    this.zoom = new ZoomAndPan(this.el);
     this.unit = 'mm';
     this.P_A = new Vector(0,0);
 

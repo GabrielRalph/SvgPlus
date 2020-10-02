@@ -124,12 +124,11 @@ let SVGPlus = {
   }
 }
 
-class SvgElement{
+class PlusElement{
   constructor(el){
     this.el = SVGPlus.parseElement(el);
-    this._co_labels = ['x', 'y']
+    this._co_labels = ['top', 'left']
     this.el.svgPlus = this;
-    this.__add_svgPlus_to_children(this.el);
   }
 
   set innerHTML(val){
@@ -140,11 +139,12 @@ class SvgElement{
   }
 
   get x(){
-    return this._x;
+    return this.getAttribute(this._co_labels[0]);
   }
   get y(){
-    return this._y;
+    return this.getAttribute(this._co_labels[1]);
   }
+
   set x(val){
     if (typeof val === 'number'){
       this._x = val;
@@ -181,14 +181,14 @@ class SvgElement{
     if (this.el.parentNode.svgPlus){
       return this.el.parentNode.svgPlus
     }else{
-      throw 'The parent of this node is not a SvgPlus'
-      return null;
+      // throw 'The parent of this node is not a SvgPlus'
+      return new PlusElement(this.el.parentNode);
     }
   }
 
   appendChild(child){
     try{
-      if (child instanceof SvgElement){
+      if (child instanceof PlusElement){
         this.el.appendChild(child.el)
       }else{
         this.el.appendChild(child)
@@ -199,7 +199,7 @@ class SvgElement{
   }
   removeChild(child){
     try{
-      if (child instanceof SvgElement){
+      if (child instanceof PlusElement){
         this.el.removeChild(child.el)
       }else{
         this.el.removeChild(child)
@@ -225,11 +225,12 @@ class SvgElement{
 
   set onclick(val) {this.el.onclick = val}
   get onclick() { return this.el.onclick }
+
   addEventListener(name, callback){
     this.el.addEventListener(name, callback);
   }
 
-  set styles(styles){
+  set style(styles){
     if (typeof styles !== 'object'){
       throw `Error setting styles:\nstyles must be set using an object, not ${typeof styles}`
       return
@@ -249,7 +250,7 @@ class SvgElement{
     for (var prop in props){
       var value = props[prop]
       if (prop == 'style'){
-        this.styles = value
+        this.style = value
       }else if (value != null){
         this.el.setAttribute(prop,value);
       }
@@ -259,6 +260,15 @@ class SvgElement{
     let child = SVGPlus.create(name, props);
     this.appendChild(child);
     return child;
+  }
+}
+
+class SvgElement extends PlusElement{
+  constructor(el){
+    super(el);
+    this._co_labels = ['x', 'y'];
+    this.__add_svgPlus_to_children(this.el);
+
   }
   setStroke(color, width){
     if (typeof color === 'string'){
@@ -1003,7 +1013,7 @@ class SvgPath extends SvgGeometry{
       temp.push(link);
       link.total_length = temp.getTotalLength()
       if (link.total_length > length && last.total_length < length){
-        console.log(last);
+        // console.log(last);
       }
       last = link;
     });
@@ -1192,5 +1202,131 @@ class SvgEllipse extends SvgGeometry{
   }
   set sub(val){
     this.pos = this.pos.sub(val);
+  }
+}
+
+
+class ZoomAndPan{
+  constructor(svg){
+    if (svg instanceof SvgElement){
+      this.svg = svg;
+    }else{
+      this.svg = new SvgElement(svg);
+    }
+    this.box = this.svg.parent;
+    this.box.style = {
+      overflow: 'scroll',
+    }
+
+    this.unit = 'px';
+
+    this.margin = 500;
+    this.size = 600;
+
+    this.center();
+
+    this.box.addEventListener('wheel', (e) => {
+      e.preventDefault()
+      this.zoom(e.deltaY/50, new Vector(e));
+    })
+
+    this.mouse_down = false;
+    this.box.addEventListener('mousedown', () => {
+      setTimeout(() => {
+        this.mouse_down = true;
+      }, 20) //Bounce delay
+    })
+    this.box.addEventListener('mousemove', (e) => {
+      if (this.mouse_down){
+        this.pan(new Vector(e, {x: 'movementX', y: 'movementY'}))
+      }
+    })
+    document.addEventListener('mouseup', () => {
+      this.mouse_down = false;
+    })
+
+    this.last_pinch_zoom = null;
+    this.box.addEventListener('touchmove', (e) => {
+      console.log(e);
+      if(e.touches.length == 2){
+        e.preventDefault();
+        let t1 = new Vector(e.touches[0], {x: 'clientX', y: 'clientY'})
+        let t2 = new Vector(e.touches[1], {x: 'clientX', y: 'clientY'})
+
+        if (this.last_pinch_zoom == null){
+          this.last_pinch_zoom = t1.dist(t2);
+        }
+        let pinch_dist = t1.dist(t2);
+        let delta = (pinch_dist - this.last_pinch_zoom)*2;
+        this.last_pinch_zoom = pinch_dist;
+        let mid = t1.add(t2).div(2);
+        this.zoom(delta, mid)
+      }else{
+        this.last_pinch_zoom = null;
+      }
+    })
+    this.box.addEventListener('touchend', ()=> {
+      this.last_pinch_zoom = null;
+    })
+
+  }
+
+  center(){
+    this.svg.el.scrollIntoView({block: 'center', inline: 'center'})
+  }
+
+  set margin(val){
+    val = parseFloat(val);
+    if (Number.isNaN(val)){
+      throw 'Error setting margin:\n Must set to a number or string representing a number'
+      return
+    }
+    this.svg.style = {
+      margin: `${val}${this.unit}`
+    }
+    this._margin = val;
+  }
+  get margin(){
+    return this._margin
+  }
+
+  set size(val){
+    val = parseFloat(val);
+    if (Number.isNaN(val)){
+      throw 'Error setting size:\n Must set to a number or string representing a number'
+      return
+    }
+    this.svg.style = {
+      width: `${val}${this.unit}`
+    }
+    this._size = val;
+  }
+  get size(){
+    return this._size;
+  }
+
+  get svg_pos(){
+    return new Vector(this.svg.el.getBoundingClientRect());
+  }
+
+  get scroll_pos(){
+    return new Vector(this.box.el, {x: 'scrollLeft', y: 'scrollTop'});
+  }
+  set scroll_pos(new_s){
+    this.box.el.scrollTo(new_s.x, new_s.y);
+  }
+
+  zoom(delta, pos){
+    let _pos = pos.sub(this.svg_pos);
+    let delta_scroll = _pos.mul( ((this.size + delta)/this.size - 1) );
+
+    let new_scroll = this.scroll_pos.add(delta_scroll);
+
+    this.size += delta
+    this.scroll_pos = new_scroll;
+  }
+
+  pan(delta){
+    this.scroll_pos = this.scroll_pos.sub(delta)
   }
 }

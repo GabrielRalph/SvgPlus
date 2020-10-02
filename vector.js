@@ -10,106 +10,166 @@
 
 class Vector{
 	constructor(x = 0, y = null){
-    this.x = x;
-    this.y = y;
+		try{
+			let form_x = this.forMate(x);
+			let form_y = this.forMate(y);
 
-		// If the first parameter is an array
-    if(x instanceof Array && typeof x !== 'string'){
-			try{
-				y = y == null ? 0: y;
-				y = parseFloat(y);
-				if (Number.isNaN(y)){
-					throw `\nNumber conversion:\nNumber | parseFloat(String)`
-				}
+			if (form_x.type === 'number' && form_y.type === 'number'){
+				this.x = form_x.val;
+				this.y = form_y.val;
 
-			}catch (e){
-				y = 0;
-				throw `\nVector Input Format:\n(array: Array, offset: Number)\n${e}`
-			}
+			}else if (form_x.type === 'number' && form_y.type === null){
+				this.x = form_x.val;
+				this.y = form_x.val;
 
-			if (y >= x.length - 1){
-				y = 0;
-			}
-			//Fill the array using y as an offset, if y is not a number it will be set as Zero
-			try{
-				this.x = parseFloat(x[y]);
-				this.y = parseFloat(x[y + 1]);
-				if (Number.isNaN(this.y) || Number.isNaN(this.x)){
-					throw `\nNumber conversion:\nNumber | parseFloat(String)`
-				}
-
-			}catch(e){
-				this.x = 0;
-				this.y = 0;
-				throw `${e}\nVector Input Format:\n(array, offset*) ==> V ( array[0 + offset*], array[1 + offset*] )\n\n*note: offset - optional, defaults to 0`
-			}
-
-		//If x is a vector or object set accordingly
-	}else if(x instanceof Vector || x instanceof Object || typeof x === 'object' && x !== null){
-			if ('x' in x && 'y' in x){
+			}else if(form_x.type === 'array'){
 				try {
-					this.x = parseFloat(x.x);
-					this.y = parseFloat(x.y);
-					if (Number.isNaN(this.y) || Number.isNaN(this.x)){
-						throw `\nNumber conversion:\nNumber | parseFloat(String)`
+					let offset = form_y.type === 'number' ? form_y.val : 0;
+					if (offset + 1 >= x.length){
+						throw `\nparam1[${offset + 1}] is invalid, param1.length = ${x.length} but param2 = ${offset}`
+					}else if (offset < 0){
+						throw `\nparam2 must be a postive integer, but param2 = ${offset}`
+					}
+					this.x = parseFloat(x[offset]);
+					this.y = parseFloat(x[1+offset]);
+
+
+					if (Number.isNaN(this.x)){
+						this.x = 0;
+						throw `\nparam1[${offset}] is not a valid number (x = 0)`
 					}
 
-				}catch (e){
+					if (Number.isNaN(this.y)){
+						this.y = 0;
+						throw `\nparam1[${offset + 1}] is not a valid number (y = 0)`
+					}
+				}catch(e){
+					e = e.replace(/param1/g, 'Array').replace(/param2/g, 'Offset')
 					this.x = 0;
 					this.y = 0;
-					throw `\nVector Input Format:\n(obj)\nobj.x: Number|String(as number)\nobj.y: Number|String`
+					throw `given: Vector(Array, Offset = 0)${e}`
+				}
+			}else if (form_y.type === "object" && (form_x.type === 'object' || form_x.type === 'vector')){
+				if ('x' in y && 'y' in y){
+					let msg = ""
+
+					if (y.x in x){
+						this.x = parseFloat(x[y.x]);
+
+						if (Number.isNaN(this.x)){
+							this.x = 0;
+							throw `given: Vector(Object, Keys)\nObject[Keys.x] is not a valid number (x = 0)`
+						}
+					}else{
+						msg += 'Keys.x is not a key in Object (x = 0)\n'
+						this.x = 0;
+					}
+
+					if (y.y in x){
+						this.y = parseFloat(x[y.y]);
+
+						if (Number.isNaN(this.y)){
+							this.y = 0;
+							throw `given: Vector(Object, Keys)\nObject[Keys.y] is not a valid number (y = 0)`
+						}
+					}else{
+						msg += 'Keys.y is not a key in Object (y = 0)\n'
+						this.y = 0;
+					}
+
+					if (msg.length !== 0){
+						throw `given: Vector(Object, Keys)\n${msg}`
+					}
+
+				}else{
+					if (form_x.type === 'vector'){
+						this.x = x.x;
+						this.y = y.y;
+					}else{
+						throw `given: Vector(Object, Keys)\nKeys must contain\nx: 'x-key'\ny: 'y-key'`
+					}
+				}
+			}else if (form_x.type === "vector"){
+				this.x = x.x;
+				this.y = x.y;
+			}else if(form_x.type === "object"){
+				this.x = parseFloat(x.x);
+				this.y = parseFloat(x.y);
+
+				if (Number.isNaN(this.x)){
+					this.x = 0;
+					throw `given: Vector(Object)\nObject.x is not a valid number (x = 0)`
+				}
+
+				if (Number.isNaN(this.y)){
+					this.y = 0;
+					throw `given: Vector(Object)\nObject.y is not a valid number (y = 0)`
 				}
 			}else{
-				if (y instanceof Object || typeof y === 'object' && y !== null){
-					if (('x' in y && 'y' in y) && (y.x in x && y.y in x)){
-						try {
-							this.x = parseFloat(x[y.x]);
-							this.y = parseFloat(x[y.y]);
-							if (Number.isNaN(this.y) || Number.isNaN(this.x)){
-								throw `\nNumber conversion:\nNumber | parseFloat(String)`
-							}
+				throw `Invalid input (${form_x.type}, ${form_y.type})`
+				this.x = 0;
+				this.y = 0;
+			}
+		}catch(e){
+			this.x = 0;
+			this.y = 0;
+			console.error(`error creating vector\n\n${e}\n\nResult: V(${this})`);
+		}
+	}
 
-						}catch (e){
-							this.x = 0;
-							this.y = 0;
-							throw `\nVector Input Format:\n(obj, keys)\nobj[keys.x]: Number|String(as number)\nobj[keys.y]: Number|String`
+	forMate(val){
+		let type = typeof val;
+		let message = "";
+		let error = false;
+		let new_val = null
+		try{
+			if (val == null){
+				return {type: null, message:"", val: null}
+			}
+			if (type == 'object'){
+				if (val instanceof Array){
+					type = 'array'
+				}else if(val instanceof Vector){
+					type = 'vector'
+				}else{
+					if ('x' in val && 'y' in val){
+
+						let x = parseFloat(val.x)
+						let y = parseFloat(val.y)
+
+						type = 'vector'
+
+						if (Number.isNaN(x)){
+							type = 'object'
+							message += "val.x is not a valid number\n"
+						}else{
 						}
 
+						if (Number.isNaN(y)){
+							type = 'object'
+							message += "val.y is not a valid number\n"
+						}else{
+						}
 					}else{
-						this.x = 0;
-						this.y = 0;
-						throw `\nVector Input Format:\n(obj, keys) ==> V ( obj[keys.x], obj[keys.y] )\n(obj) ==> V ( obj.x, obj.y )`
+						type = "object"
 					}
-				}else{
-					throw `\nVector Input Format:\n(obj, keys) ==> V ( obj[keys.x], obj[keys.y] )\n(obj) ==> V ( obj.x, obj.y )`
 				}
-			}
-    }else if(y === null){
-			try {
-				this.x = parseFloat(x);
-				this.y = this.x;
-				if (Number.isNaN(this.y) || Number.isNaN(this.x)){
-					throw `\nNumber conversion:\nNumber | parseFloat(String)`
+			}else if(type == 'string'){
+				let temp = parseFloat(val);
+				if (!Number.isNaN(temp)){
+					val = temp;
+					type = 'number'
 				}
-
-			}catch (e){
-				this.x = 0;
-				this.y = 0;
-				throw `\nVector Input Format:\n(param) ==> V ( param.x, param.y )\n\nor\n\n(param) ==> V (param, param)\nwhere\nparam: Number|String )`
+			}else if(type == 'number' && !Number.isNaN(val)){
+				type = 'number'
+			}else{
+				type = 'invalid'
 			}
-		}else{
-			try {
-				this.x = parseFloat(this.x);
-				this.y = parseFloat(this.y);
-				if (Number.isNaN(this.y) || Number.isNaN(this.x)){
-					throw `\nNumber conversion:\nNumber | parseFloat(String)`
-				}
-			}catch (e){
-				this.x = 0;
-				this.y = 0;
-				throw `Valid Vector Input:\n(obj) ==> V ( obj.x, obj.y )\n(obj, keys) ==> V ( obj[keys.x], obj[keys.y] )\n(array, offset*) ==> V ( array[0 + offset*], array[1 + offset*] )\n(num) ==> V (num, num)\n(x, y) ==> V (x, y)\n\nWhere V (Number, Number)\nnumbers as strings accepted`
-			}
+		}catch(e){
+			throw `Error on forMate\n ${e}`
 		}
+		return {val: val, type: type, message: message}
+
 	}
 
 	round(){
@@ -179,6 +239,7 @@ class Vector{
 		try{
 			v2 = new Vector(p1, p2);
 		}catch (e){
+			v2 = new Vector(1, 1);
 			throw `Error on grad:\n\n${e}`
 		}
 
@@ -197,13 +258,9 @@ class Vector{
   }
 
 	distToLine(p1, p2){
-		if (p1 instanceof Vector && p2 instanceof Vector){
-			let line = p2.sub(p1).rotate(Math.PI/2)
-			let d = line.dot(this.sub(p1))/line.norm()
-			return Math.abs(d)
-		}else{
-			return null
-		}
+		let line = p2.sub(p1).rotate(Math.PI/2)
+	  let d = line.dot(this.sub(p1))/line.norm()
+	  return Math.abs(d)
 	}
 
 	// (x + iy)*(cos(t) + isin(t)) = xcos(t) - ysin(t) + i(xsin(t) + ycos(t))
