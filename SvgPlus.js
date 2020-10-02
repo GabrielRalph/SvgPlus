@@ -1206,6 +1206,27 @@ class SvgEllipse extends SvgGeometry{
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class ZoomAndPan{
   constructor(svg){
     if (svg instanceof SvgElement){
@@ -1219,9 +1240,8 @@ class ZoomAndPan{
     }
 
     this.unit = 'px';
-
-    this.margin = 500;
-    this.size = 600;
+    this.margin_default = 500;
+    this.size_default = 600;
 
     this.center();
 
@@ -1257,7 +1277,7 @@ class ZoomAndPan{
           this.last_pinch_zoom = t1.dist(t2);
         }
         let pinch_dist = t1.dist(t2);
-        let delta = (pinch_dist - this.last_pinch_zoom)*2;
+        let delta = (pinch_dist - this.last_pinch_zoom)*this.size/this.size_default;
         this.last_pinch_zoom = pinch_dist;
         let mid = t1.add(t2).div(2);
         this.zoom(delta, mid)
@@ -1274,6 +1294,28 @@ class ZoomAndPan{
   center(){
     this.svg.el.scrollIntoView({block: 'center', inline: 'center'})
   }
+
+  set margin_default(val){
+    val = parseFloat(val);
+    if (Number.isNaN(val)){
+      throw 'Error setting margin_default:\n Must set to a number or string representing a number'
+      return
+    }
+    this._margin_default = val;
+    this.margin = val;
+  }
+  get margin_default(){return this._margin_default}
+
+  set size_default(val){
+    val = parseFloat(val);
+    if (Number.isNaN(val)){
+      throw 'Error setting size_default:\n Must set to a number or string representing a number'
+      return
+    }
+    this._size_default = val;
+    this.size = val;
+  }
+  get size_default(){return this._size_default}
 
   set margin(val){
     val = parseFloat(val);
