@@ -93,15 +93,30 @@ let SVGPlus = {
   make: function(name){ return document.createElementNS("http://www.w3.org/2000/svg", name) },
   parseElement: function(elem = null) {
     if (elem == null){
+      throw 'null element given to parser'
       return null
     }
     if (typeof elem === 'string'){
-      return this.parseElement(document.getElementById(elem))
+      let = _elem = document.getElementById(elem);
+      if (_elem == null){
+
+        let a = new PlusError('Day did');
+        throw `${new PlusError(`Could not parse ${elem},\n\t\t\tas it doesn't exist.`)}`
+        return null
+      }else{
+        try {
+          _elem = this.parseElement(_elem);
+        }catch(e){
+          throw e
+          return null
+        }
+        return _elem
+      }
     }else if (elem instanceof Element){
       return elem
     }else{
-      return null
       throw 'invalid element'
+      return null
     }
   },
   importFromObject: function(el, callback){
@@ -123,12 +138,73 @@ let SVGPlus = {
     }
   }
 }
+class PlusError{
+  constructor(message, class_name = "Object"){
+    this.msg = message;
+    this.cls = class_name;
+    let stack = new Error('helloworld');
+    this.stack = stack.stack
+
+  }
+  _parse_stack(){
+    let stack = this.stack
+    let lines = stack.split('at ');
+    let message = '';
+    let con = 0;
+    let tab = "";
+    for (var i = 2; i < lines.length-1; i++){
+      let conf = false;
+
+      let clas = null;
+      let lctn = null;
+      let mthd = null;
+
+      let line = lines[i];
+      line = lines[i].replace(/\t|\n|\[.*\] |  +/g, '').replace(/ \((.*)\)/g, (a,b) =>{
+        lctn = b;
+        return ''
+      })
+      let parts = line.split(/ |\./g);
+
+      if (parts.length === 3 && parts[1] == "get" || parts[1] == "set"){
+        mthd = `${parts[1]}ting ${parts[2]} of ${parts[0]}\t\t (${lctn})`
+      }else if(parts.length == 2){
+        mthd = `whilst calling ${parts[1]} of ${parts[0]}\t\t (${lctn})`
+      }
+      if (parts[0] === 'new'){
+        con++;
+        conf = true;
+        mthd = `whilst constructing new ${parts[1]}\t\t (${lctn})`
+        clas = parts[1];
+      }else if(parts[0] === 'Object'){
+        clas = this.cls;
+      }else{
+        clas = parts[0];
+      }
+      if ((conf && con == 1)||(!conf)){
+        message = mthd + '\n' + tab + message;
+      }
+      tab += '\t'
+      // stack_data.push(this._stack_line_parser(line))
+    }
+    return 'Error\n' + message + tab + this.msg
+    // console.log(stack_data);
+  }
+
+  toString(){
+    return this._parse_stack()
+  }
+}
+
 
 class PlusElement{
   constructor(el){
     this.el = SVGPlus.parseElement(el);
     this._co_labels = ['top', 'left']
     this.el.svgPlus = this;
+    //
+    // let x = new Method();
+    // let y = x.test;
   }
 
   set innerHTML(val){
@@ -1235,10 +1311,11 @@ class ZoomAndPan{
       this.svg = new SvgElement(svg);
     }
     this.box = this.svg.parent;
-    this.box.style = {
-      overflow: 'scroll',
-    }
 
+    this.box.style = {
+      overflow:'hidden'
+    }
+    this.pan_mode = 'double'
     this.unit = 'px';
     this.margin_default = 500;
     this.size_default = 600;
@@ -1265,12 +1342,24 @@ class ZoomAndPan{
       this.mouse_down = false;
     })
 
-    this.last_pinch_zoom = null;
-    this.box.addEventListener('touchmove', (e) => {
-      console.log(e);
-      if(e.touches.length == 2){
-        e.preventDefault();
+    this.last_touch = null;
+    this.zoom_mode =false;
+    this.last_mid = null;
+    this.box.addEventListener('touchstart', (e) => {
+      this.last_touch = new Vector(e.touches[0], {x: 'clientX', y: 'clientY'});
+      if (e.touches.length == 2){
         let t1 = new Vector(e.touches[0], {x: 'clientX', y: 'clientY'})
+        let t2 = new Vector(e.touches[1], {x: 'clientX', y: 'clientY'})
+        this.last_mid = t1.add(t2).div(2);
+      }
+    })
+    this.box.addEventListener('touchmove', (e) => {
+
+      let t1 = new Vector(e.touches[0], {x: 'clientX', y: 'clientY'})
+
+      if(e.touches.length == 2){
+        this.zoom_mode = true;
+        e.preventDefault();
         let t2 = new Vector(e.touches[1], {x: 'clientX', y: 'clientY'})
 
         if (this.last_pinch_zoom == null){
@@ -1280,13 +1369,26 @@ class ZoomAndPan{
         let delta = (pinch_dist - this.last_pinch_zoom)*this.size/this.size_default;
         this.last_pinch_zoom = pinch_dist;
         let mid = t1.add(t2).div(2);
+        let delta_p = mid.sub(this.last_mid);
+        // alert(delta_p.norm())
+        // if (delta_p.norm() < 50){
+          this.pan(mid.sub(this.last_mid));
+        // }
+        this.last_mid = mid;
         this.zoom(delta, mid)
-      }else{
+
+      }else if (!this.zoom_mode && this.pan_mode == 'single'){
+        let delta = t1.sub(this.last_touch);
+        this.last_touch = t1;
+        this.pan(delta)
         this.last_pinch_zoom = null;
       }
     })
-    this.box.addEventListener('touchend', ()=> {
+    this.box.addEventListener('touchend', (e)=> {
       this.last_pinch_zoom = null;
+      if ( e.touches.length == 0){
+        this.zoom_mode = false;
+      }
     })
 
   }
@@ -1355,6 +1457,9 @@ class ZoomAndPan{
     return new Vector(this.box.el, {x: 'scrollLeft', y: 'scrollTop'});
   }
   set scroll_pos(new_s){
+    // console.log(new_s);
+    // this.svg.pos = new_s
+    // alert('x')
     this.box.el.scrollTo(new_s.x, new_s.y);
   }
 
