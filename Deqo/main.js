@@ -13,7 +13,7 @@ class Templates extends PlusElement{
     for (var i = 0; i < this.children.length; i++){
       names.push(this.children[i].id)
     }
-    return names
+    return names.sort()
   }
   get children(){
     return this.el.children
@@ -139,7 +139,7 @@ class Windows extends PlusElement{
   wave_transition(new_window, options){
     return new Promise((resolve, reject) => {
       let dir = 'right';
-      let duration = 400;
+      let duration = 300;
       //Options checking
       if (typeof options == 'object'){
         //Direction of transition, either from the 'left'|'right', or 'up'|'down'
@@ -274,7 +274,7 @@ class Navigator extends PlusElement{
     let init_time = null;
     let t = (time) => {
       init_time = init_time == null?time:init_time;
-      let x = (time - init_time)/400
+      let x = (time - init_time)/300
       let y = 50*(1 + Math.cos(x));
       this.el.style.setProperty('transform', `translate(${val ? 100 - y : y}%, 0%)`)
       if (x < Math.PI){
