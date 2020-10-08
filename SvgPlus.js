@@ -93,8 +93,7 @@ let SVGPlus = {
   make: function(name){ return document.createElementNS("http://www.w3.org/2000/svg", name) },
   parseElement: function(elem = null) {
     if (elem == null){
-      throw + new PlusError('null element given to parser')
-      return null
+      throw `${new PlusError('null element given to parser')}`
     }
     if (typeof elem === 'string'){
       let = _elem = document.getElementById(elem);
