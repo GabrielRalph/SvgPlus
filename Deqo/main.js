@@ -59,9 +59,9 @@ class Window extends PlusElement{
   constructor(el){
     super(el);
     this.setAttribute('class', 'window');
-    this.style = {
-      background: `#${Math.round(Math.random()*9)}${Math.round(Math.random()*9)}${Math.round(Math.random()*9)}`
-    }
+    // this.style = {
+    //   background: `#${Math.round(Math.random()*9)}${Math.round(Math.random()*9)}${Math.round(Math.random()*9)}`
+    // }
   }
   set template(val){
     if(val instanceof Template){
