@@ -93,7 +93,7 @@ let SVGPlus = {
   make: function(name){ return document.createElementNS("http://www.w3.org/2000/svg", name) },
   parseElement: function(elem = null) {
     if (elem == null){
-      throw 'null element given to parser'
+      throw + new PlusError('null element given to parser')
       return null
     }
     if (typeof elem === 'string'){
@@ -203,6 +203,16 @@ class PlusElement{
     this.el.svgPlus = this;
   }
 
+  get id(){
+    return this.el.id;
+  }
+  set id(val){
+    if (typeof val == 'string' || val instanceof Number){
+      this.el.setAttribute('id', +val)
+    }else{
+      throw + new PlusError(`id must be set to a string or number value`)
+    }
+  }
   set innerHTML(val){
     this.el.innerHTML = val;
   }
@@ -267,6 +277,13 @@ class PlusElement{
       }
     }catch(e){
       throw `Error appending child:\n${err}`
+    }
+  }
+  remove(){
+    try{
+      return this.el.remove()
+    }catch(e){
+      throw `Error removing child:\n${err}`
     }
   }
   removeChild(child){

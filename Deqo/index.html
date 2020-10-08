@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900">
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src = "../load.js"></script>
+    <script src = "./main.js"></script>
+    <title>Deqo</title>
+
+
+  </head>
+  <body>
+    <!-- <div id = "navigator">
+      <div>
+
+        <h1>
+          =
+        </h1>
+        <table>
+          <tr>
+            <td>
+              <a href = "#/" >home</a>
+            </td>
+            <td>
+              <a href = "#/about_us" >About us</a>
+            </td>
+            <td>
+              <a href = "#/people" >People</a>
+            </td>
+            <td>
+              <a href = "#/contact_us" >Contact us</a>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div> -->
+    <div id = "main">
+      <div id = "template" style = "display: none">
+        <div id = "home">
+          This is the home page
+        </div>
+        <div id = "contact_us">
+          dad@gmail.com
+        </div>
+        <div id = "about_us">
+          This is the about us page
+        </div>
+        <div id = "people">
+          <h1>{{test}}</h1>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <style type="text/css">
+    body{
+      --nav-height: 4vh;
+    }
+
+    .window{
+       position: fixed;
+       top: 0;
+       right: 0;
+       left: 0;
+       bottom: 0;
+    }
+
+    #navigator{
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      z-index: 100;
+      background: #fff8;
+      padding: 0;
+    }
+    #navigator > div{
+      position: relative;
+    }
+    #navigator table{
+      width: 100%;
+      text-align: center;
+      border-collapse: collapse;
+      padding: 0;
+    }
+    #navigator td{
+      padding: 0;
+    }
+    #navigator h1{
+      position: absolute;
+      top: 0;
+      left: 0;
+      margin: 0;
+      /* background: white; */
+      color: white;
+      line-height: var(--nav-height);
+      padding-right: 0.2em;
+      cursor: pointer;
+      transform: translate(-100%, 0);
+    }
+    #navigator a{
+      font-family: Roboto;
+      font-weight: 500;
+      text-decoration: none;
+      color: black;
+      line-height: var(--nav-height);
+    }
+    #main > div > div{
+      padding-top: var(--nav-height);
+      color: white;
+    }
+  </style>
+
+  <script>
+
+  console.log('x');
+  </script>
+
+</html>
