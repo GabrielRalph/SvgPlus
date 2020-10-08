@@ -100,7 +100,6 @@ let SVGPlus = {
       let = _elem = document.getElementById(elem);
       if (_elem == null){
 
-        let a = new PlusError('Day did');
         throw `${new PlusError(`Could not parse ${elem},\n\t\t\tas it doesn't exist.`)}`
         return null
       }else{
@@ -202,9 +201,6 @@ class PlusElement{
     this.el = SVGPlus.parseElement(el);
     this._co_labels = ['top', 'left']
     this.el.svgPlus = this;
-    //
-    // let x = new Method();
-    // let y = x.test;
   }
 
   set innerHTML(val){
