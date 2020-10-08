@@ -159,20 +159,24 @@ class PlusError{
 
       let line = lines[i];
       line = lines[i].replace(/\t|\n|\[.*\] |  +/g, '').replace(/ \((.*)\)/g, (a,b) =>{
-        lctn = b;
+        b = b.split('/');
+        b = b[b.length - 1];
+        b = b.split(':')
+
+        lctn = `${b[0]} line ${b[1]}`;
         return ''
       })
       let parts = line.split(/ |\./g);
 
       if (parts.length === 3 && parts[1] == "get" || parts[1] == "set"){
-        mthd = `${parts[1]}ting ${parts[2]} of ${parts[0]}\t\t (${lctn})`
+        mthd = `${parts[1]}ting ${parts[2]} of ${parts[0]}\t (${lctn})`
       }else if(parts.length == 2){
-        mthd = `whilst calling ${parts[1]} of ${parts[0]}\t\t (${lctn})`
+        mthd = `whilst calling ${parts[1]} of ${parts[0]}\t (${lctn})`
       }
       if (parts[0] === 'new'){
         con++;
         conf = true;
-        mthd = `whilst constructing new ${parts[1]}\t\t (${lctn})`
+        mthd = `whilst constructing new ${parts[1]}\t (${lctn})`
         clas = parts[1];
       }else if(parts[0] === 'Object'){
         clas = this.cls;
