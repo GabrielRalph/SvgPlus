@@ -14,30 +14,9 @@
 
 </head>
 <body>
-  <!-- <div id = "navigator">
-  <div>
-
-  <h1>
-  =
-</h1>
-<table>
-<tr>
-<td>
-<a href = "#/" >home</a>
-</td>
-<td>
-<a href = "#/about_us" >About us</a>
-</td>
-<td>
-<a href = "#/people" >People</a>
-</td>
-<td>
-<a href = "#/contact_us" >Contact us</a>
-</td>
-</tr>
-</table>
-</div>
-</div> -->
+  <div id = "add">
+    +
+  </div>
 <div id = "main">
   <div id = "template" style = "display: none;">
     <div id = "home">
@@ -123,7 +102,8 @@ window.onload = () => {
     }
   })
 }
-window.ondblclick = async function() {
+let add = document.getElementById('add');
+add.onclick = async function() {
   let content = null
   try{
     content = await navigator.clipboard.readText();
@@ -144,6 +124,20 @@ window.ondblclick = async function() {
 }
 </script>
 <style type="text/css">
+#add{
+  position: fixed;
+  top: 0;
+  left: 0;
+  margin: 1em;
+  display: inline;
+  background: #ffffff88;
+  border-radius: 50px;
+  line-height: 2em;
+  width: 2em;
+  text-align: center;
+  cursor: pointer;
+  z-index: 10000;
+}
 body{
   --nav-height: 6vh;
   font-family: Roboto;
