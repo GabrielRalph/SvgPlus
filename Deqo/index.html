@@ -5,6 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@317&display=swap" rel="stylesheet">
   <script src= "https://www.gstatic.com/firebasejs/7.14.4/firebase.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vue"></script>
   <script src = "../loadl.js"></script>
@@ -93,12 +94,16 @@ let test_vue_page = new Vue({
 })
 window.onload = () => {
   let panels = new Windows('main');
+
   let home = document.getElementById('home');
   firebase.database().ref('deqo_logos').on('value', (e) => {
     home.innerHTML = '';
     let svgs = e.val();
     for (var key in svgs){
-      home.innerHTML += svgs[key]
+      home.innerHTML += `<div>
+        ${svgs[key]}
+        <img src = "https://scontent-syd2-1.xx.fbcdn.net/v/t1.15752-9/s2048x2048/120902857_1248579315502824_4129131009186514728_n.jpg?_nc_cat=101&_nc_sid=ae9488&_nc_ohc=l9EIq95HSDQAX9F6SoX&_nc_ht=scontent-syd2-1.xx&tp=7&oh=d9143396533a01a56822483e6eef552a&oe=5F8119E0"/>
+      </div>`
     }
   })
 }
@@ -140,17 +145,25 @@ add.onclick = async function() {
 }
 body{
   --nav-height: 6vh;
-  font-family: Roboto;
-  background: #111129;
+  font-family: 'Oswald', sans-serif;
+  /* background: #111129; */
 }
 ::-webkit-scrollbar{
   display: none;
 }
-svg{
-  margin: 5vw auto;
+#home svg{
+  margin: 0 auto;
   width: 61.8vw;
   max-width: 400px;
-
+  text-align: center;
+  padding: 5vw 0;
+}
+#home img{
+  width: 100%;
+  margin-bottom: 20vw;
+}
+#home div{
+  display: inline-grid;
 }
 #home{
   display: grid;
@@ -170,7 +183,7 @@ svg{
   left: 0;
   bottom: 0;
   padding-top: var(--nav-height);
-  color: white;
+  color: black;
   overflow: scroll;
 }
 
@@ -178,7 +191,7 @@ svg{
   position: fixed;
   top: 0;
   right: 0;
-  left: 0;
+  left: 50%;
   z-index: 100;
   /* background: #fff8; */
   padding: 0;
@@ -202,18 +215,27 @@ svg{
   left: 0;
   margin: 0;
   /* background: white; */
-  color: white;
+  /* color: white; */
   line-height: var(--nav-height);
+  font-size: 3vw;
   padding-right: 0.2em;
   cursor: pointer;
   transform: translate(-100%, 0);
 }
+/*
+@media screen and (max-width: 900px) {
+  #navigator a {
+     font-size: 18px;
+  }
+} */
 #navigator a{
   font-family: Roboto;
   font-weight: 500;
   text-decoration: none;
-  color: white;
+  color: black;
+  font-size: min(2vw, 18px);
   line-height: var(--nav-height);
+  text-transform: uppercase;
 }
 </style>
 

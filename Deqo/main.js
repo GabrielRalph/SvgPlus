@@ -103,6 +103,7 @@ class Windows extends PlusElement{
     }
 
     let home_page = (window.location.href.split('#')[1] || '').replace('/', '') || 'home';
+    console.log(home_page);
     this.current_window = this.createWindow(home_page)
 
     let nav = document.createElement('DIV');
@@ -273,6 +274,7 @@ class Navigator extends PlusElement{
     link.innerHTML = name.replace('_', ' ');
 
     link_cell.appendChild(link)
+    link_cell.setAttribute('width', '33%')
     this.links.appendChild(link_cell)
   }
   clearLinks(){
