@@ -144,7 +144,7 @@ add.onclick = async function() {
   z-index: 10000;
 }
 body{
-  --nav-height: 6vh;
+  --nav-height: min(5vw, 30px);
   font-family: 'Oswald', sans-serif;
   /* background: #111129; */
 }
@@ -207,6 +207,7 @@ body{
   padding: 0;
 }
 #navigator td{
+  height: var(--nav-height);
   padding: 0;
 }
 #navigator h1{
@@ -236,6 +237,7 @@ body{
   font-size: min(2vw, 18px);
   line-height: var(--nav-height);
   text-transform: uppercase;
+      display: grid;
 }
 </style>
 
