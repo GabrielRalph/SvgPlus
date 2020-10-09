@@ -296,6 +296,7 @@ class Navigator extends PlusElement{
       if (x < Math.PI){
         window.requestAnimationFrame(t);
       }else{
+        this.el.style.setProperty('transform', `translate(${val ? 100:0}%, 0%)`)
         this.moving = false;
       }
     }
