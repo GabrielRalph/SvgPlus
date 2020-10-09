@@ -96,7 +96,7 @@ let SVGPlus = {
       throw `${new PlusError('null element given to parser')}`
     }
     if (typeof elem === 'string'){
-      let = _elem = document.getElementById(elem);
+      let _elem = document.getElementById(elem);
       if (_elem == null){
 
         throw `${new PlusError(`Could not parse ${elem},\n\t\t\tas it doesn't exist.`)}`
@@ -117,6 +117,16 @@ let SVGPlus = {
       return null
     }
   },
+  parseSVGstring: function(string){
+    let parser = new DOMParser()
+    let doc = parser.parseFromString(string, "image/svg+xml");
+    let errors = doc.getElementsByTagName('parsererror');
+    if (errors && errors.length > 0){
+      throw '' + new PlusError(`${errors[0]}`)
+      return null
+    }
+    return doc.firstChild
+  },
   importFromObject: function(el, callback){
     el = this.parseElement(el);
     console.log(`${el}`);
@@ -136,6 +146,7 @@ let SVGPlus = {
     }
   }
 }
+
 class PlusError{
   constructor(message, class_name = "Object"){
     this.msg = message;
@@ -201,9 +212,31 @@ class PlusError{
 
 class PlusElement{
   constructor(el){
-    this.el = SVGPlus.parseElement(el);
+    this._el = null
     this._co_labels = ['top', 'left']
-    this.el.svgPlus = this;
+    try{
+      this.el = el;
+    }catch(e){
+      throw e
+      return
+    }
+  }
+
+  set el(el){
+    let old_el = this._el;
+    try{
+      this._el = SVGPlus.parseElement(el);
+    }catch(e){
+      throw e;
+      this._el = null
+    }
+    if (old_el != null && old_el.parentNode != null){
+      old_el.parentNode.replaceChild(el, this._el)
+    }
+    this._el.svgPlus = this;
+  }
+  get el(){
+    return this._el
   }
 
   get id(){
@@ -221,6 +254,9 @@ class PlusElement{
   }
   get innerHTML(){
     return this.el.innerHTML
+  }
+  get outerHTML(){
+    return this.el.outerHTML
   }
 
   get x(){
@@ -359,9 +395,107 @@ class SvgElement extends PlusElement{
   constructor(el){
     super(el);
     this._co_labels = ['x', 'y'];
-    this.__add_svgPlus_to_children(this.el);
-
+    // this.__add_svgPlus_to_children(this.el);
   }
+
+  set el(el){
+    let old_el = this._el;
+    try{
+      this._el = SVGPlus.parseElement(el);
+    }catch(e2){
+      let parse_el = null;
+      try{
+        //Remove comments
+        el = el.replace(/<!-- .*? -->/g, '');
+        let ids = []
+        el = el.replace(/id *= *"(.*?)"/g, (a, id) => {
+          let new_id = id + new Date().valueOf();
+          ids.push({old: id, new: new_id});
+          return a.replace(id, new_id)
+        })
+        ids.forEach((id_r) => {
+          let reg = new RegExp(`#${id_r.old}`, 'g');
+          el = el.replace(reg, `#${id_r.new}`)
+        });
+        console.log(el);
+
+        parse_el = SVGPlus.parseSVGstring(el);
+        parse_el.removeAttribute('width')
+        parse_el.removeAttribute('height')
+      }catch(e){
+        throw e;
+        this._el = null
+        return
+      }
+      let temp_el = SVGPlus.make('svg');
+      temp_el.innerHTML = parse_el.outerHTML;
+      this._el = temp_el.firstChild;
+    }
+    if (old_el != null && old_el.parentNode != null){
+      old_el.parentNode.replaceChild(el, this._el)
+    }
+    this._el.svgPlus = this;
+  }
+  get el(){
+    return this._el
+  }
+
+  async fireSave(path){
+    if (firebase && firebase.database()){
+      let ref = null
+      if (path instanceof Array){
+        if (typeof path[0] != 'string'){
+          throw '' + new PlusError('Array must contain a string as its 0th Element');
+          return null
+        }
+        path = path[0]
+        ref = firebase.database().ref(path).push();
+      }else if (typeof path === 'string'){
+        ref = firebase.database().ref(path)
+      }
+      let res = null;
+      try {
+        res = await ref.set(this.outerHTML)
+      }catch(e){
+        throw '' + new PlusError(`${e}`)
+        return null
+      }
+      return res
+    }
+    return null
+  }
+
+
+
+
+  async openSvg(){
+    return new Promise((reslove, reject) => {
+      let input = document.body.createChild('INPUT', {type: 'file'});
+      input.oninput = (e) => {
+        handle(e)
+      }
+      input.click();
+      let handle = (e) => {
+        var reader = new FileReader();
+
+        reader.onload = (event) => {
+          input.parentNode.removeChild(input);
+          svgBox.innerHTML = '';
+          let svg = null;
+          try {
+            let svg = SVGPlus.parseSVGstring(event.target.result);
+          }catch (err){
+            throw '' + new PlusError(`Error opening svg:\n${err}`)
+            reject(null)
+          }
+          this.el = svg;
+          resolve(svg);
+        }
+        reader.readAsText(e.target.files[0]);
+      }
+    })
+  }
+
   setStroke(color, width){
     if (typeof color === 'string'){
       this.setAttribute('stroke',color)
