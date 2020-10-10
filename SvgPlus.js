@@ -791,6 +791,7 @@ class LinkList{
 class CPoint extends LinkItem{
   constructor(string){
     super()
+    this.precision = 5;
     this.cmd_type = 'L';
     //p => x, y
     this.p = new Vector(0, 0);
@@ -935,7 +936,7 @@ class CPoint extends LinkItem{
   }
 
   _v_s(val){
-    return `${this[val].x}${this[val].y>=0?',':''}${this[val].y}`
+    return `${this[val].x.toPrecision(this.precision)}${this[val].y>=0?',':''}${this[val].y.toPrecision(this.precision)}`
   }
 
   isAbsolute(){
