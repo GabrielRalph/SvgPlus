@@ -172,8 +172,8 @@ class Vector{
 
 	}
 
-	round(){
-		return new Vector(Math.round(this.x), Math.round(this.y))
+	round(x = 1){
+		return new Vector(Math.round(this.x*Math.pow(10, x))/Math.pow(10, x), Math.round(this.y*Math.pow(10, x))/Math.pow(10, x))
 	}
 
 
