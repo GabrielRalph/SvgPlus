@@ -67,30 +67,53 @@ let SVGPlus = {
     if (el instanceof SVGElement || ((`${el}`).indexOf('SVG') != -1)){
 
       if (el instanceof SVGPathElement || ((`${el}`).indexOf('SVGPathElement') != -1)){
-        let svgPlus =  new SvgPath(el);
-        return svgPlus;
+        return new SvgPath(el);
+      }else if(el instanceof SVGEllipseElement){
+        return new SvgEllipse(el);
       }else{
-        let svgPlus = new SvgElement(el);
-        return svgPlus;
+        return new SvgElement(el);
       }
 
+    }else if (el instanceof Element){
+      let svgPlus = new PlusElement(el);
     }else{
       throw 'el not svg'
     }
     return null
   },
   create: function(name, props = null) {
+    let el = this.make(name);
+    if (el == null){
+      throw 'error null element'
+      return null
+    }
+
     if(props == null){
-      let el = document.createElementNS("http://www.w3.org/2000/svg", name);
       return this.SVGElementToSVGPlusElement(el)
     }else{
-      let el = document.createElementNS("http://www.w3.org/2000/svg", name);
       el = this.SVGElementToSVGPlusElement(el)
       el.props = props;
       return el
     }
   },
-  make: function(name){ return document.createElementNS("http://www.w3.org/2000/svg", name) },
+  make: function(name){
+    if (`animate animateMotion animateTransform circle clipPath
+      color-profile defs desc discard ellipse feBlend feColorMatrix
+      feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting
+      feDisplacementMap feDistantLight feDropShadow feFlood feFuncA
+      feFuncB feFuncG feFuncR feGaussianBlur feImage feMerge feMergeNode
+      feMorphology feOffset fePointLight feSpecularLighting feSpotLight
+      feTile feTurbulence filter foreignObject g hatch hatchpath image
+      line linearGradient marker mask mesh meshgradient meshpatch meshrow
+      metadata mpath path pattern polygon polyline radialGradient rect
+      script set solidcolor stop style svg switch symbol text textPath
+      title tspan unknown use view`.indexOf(name) != -1){
+      return document.createElementNS("http://www.w3.org/2000/svg", name);
+
+    }else{
+      return document.createElement(name);
+    }
+  },
   parseElement: function(elem = null) {
     if (elem == null){
       throw `${new PlusError('null element given to parser')}`
