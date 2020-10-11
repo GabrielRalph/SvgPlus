@@ -75,10 +75,11 @@ let SVGPlus = {
       }
 
     }else if (el instanceof Element){
-      let svgPlus = new PlusElement(el);
+      return new PlusElement(el);
     }else{
       throw 'el not svg'
     }
+
     return null
   },
   create: function(name, props = null) {
@@ -87,7 +88,6 @@ let SVGPlus = {
       throw 'error null element'
       return null
     }
-
     if(props == null){
       return this.SVGElementToSVGPlusElement(el)
     }else{
@@ -169,6 +169,7 @@ let SVGPlus = {
     }
   }
 }
+
 
 class PlusError{
   constructor(message, class_name = "Object"){
@@ -337,14 +338,14 @@ class PlusElement{
       }else{
         this.el.appendChild(child)
       }
-    }catch(e){
+    }catch(err){
       throw `Error appending child:\n${err}`
     }
   }
   remove(){
     try{
       return this.el.remove()
-    }catch(e){
+    }catch(err){
       throw `Error removing child:\n${err}`
     }
   }
@@ -355,7 +356,7 @@ class PlusElement{
       }else{
         this.el.removeChild(child)
       }
-    }catch(e){
+    }catch(err){
       throw `Error removing child:\n${err}`
     }
   }
