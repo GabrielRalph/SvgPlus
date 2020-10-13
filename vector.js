@@ -115,6 +115,7 @@ class Vector{
 			this.y = 0;
 			console.error(`error creating vector\n\n${e}\n\nResult: V(${this})`);
 		}
+		this.precision = 10;
 	}
 
 	forMate(val){
@@ -333,6 +334,6 @@ class Vector{
 		return (this.x == 0 && this.y == 0)
 	}
 	toString(){
-		return `${this.x},${this.y}`
+		return `${this.x.toPrecision(this.precision)},${this.y.toPrecision(this.precision)}`
 	}
 }
