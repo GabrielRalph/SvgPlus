@@ -80,8 +80,16 @@ class SvgPlus{
     for (var style in styles){
       var value = `${styles[style]}`
       if (value != null){
-        this.style.setProperty(style, value);
-        this._style_set[style] = value;
+        let set = true;
+        try{
+          this.style.setProperty(style, value);
+        }catch(e){
+          set = false;
+          throw e
+        }
+        if (set){
+          this._style_set[style] = value;
+        }
       }
     }
   }
@@ -234,9 +242,14 @@ class SvgPlus{
           build = true;
         }else{
           if (key in elem && elem[key]){
-            throw `Property ${key} has been overwritten`
+            try {
+              elem[key] = proto[key];
+            }catch (e){
+              throw '' + new PlusError(`The class property ${key} was unable to be set\n${e}`);
+            }
+          }else{
+            Object.defineProperty(elem, key, prop);
           }
-          Object.defineProperty(elem, key, prop);
         }
       }
     })
