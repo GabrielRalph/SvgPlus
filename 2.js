@@ -99,9 +99,16 @@ class SvgPlus{
       if (prop == 'style' || prop == 'styles'){
         this.styles = value
       }else if (value != null){
-        this.setAttribute(prop,value);
-        this._prop_set[style] = value;
-
+        let set = true;
+        try{
+          this.setAttribute(prop,value);
+        }catch(e){
+          set = false;
+          throw e
+        }
+        if (set){
+          this._prop_set[style] = value;
+        }
       }
     }
   }
