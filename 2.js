@@ -148,8 +148,7 @@ class SvgPlus{
     }
 
     let nextFrame = (t) => {
-      let continue = algorithm.next(t);
-      if (continue === true){
+      if (algorithm.next(t)){
         window.requestAnimationFrame(nextFrame);
       }else{
         algorithm.end();
