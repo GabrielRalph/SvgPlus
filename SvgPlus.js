@@ -247,6 +247,7 @@ class PlusElement{
   }
 
   set el(el){
+    console.log(el);
     let old_el = this._el;
     try{
       this._el = SVGPlus.parseElement(el);
@@ -430,8 +431,8 @@ class SvgElement extends PlusElement{
       let parse_el = null;
       try{
         //Remove comments
-        el = el.replace(/<!-- .*? -->/g, '');
         let ids = []
+        el = el.replace(/<!-- .*? -->/g, '');
         el = el.replace(/id *= *"(.*?)"/g, (a, id) => {
           let new_id = id + new Date().valueOf();
           ids.push({old: id, new: new_id});
@@ -489,7 +490,44 @@ class SvgElement extends PlusElement{
     return null
   }
 
+  saveSvg(name = 'default'){
+    let output = this.el.outerHTML;
+    // // Remove defs
+    // output = output.replace(/<defs(\s|\S)*?>(\s|\S)*?<\/defs>/g, '')
 
+    // Remove excess white space
+    output = output.replace(/ ( +)/g, '').replace(/^(\n)/gm, '')
+    output = output.replace(/></g, '>\n<')
+
+    //Autoindent
+    output = output.split('\n');
+    var depth = 0;
+    var newOutput = ''
+    for (var i = 0; i < output.length; i++){
+      depth += (output[i].search(/<\/(g|svg)>/) == -1)?0:-1;
+      for (var j = 0; j < depth; j++){
+        newOutput += '\t'
+      }
+      newOutput += output[i] + '\n';
+      depth += (output[i].search(/<(g|svg)(\s|\S)*?>/) == -1)?0:1;
+    }
+
+    window.localStorage.setItem('output', newOutput)
+
+    var blob = new Blob([newOutput], {type: "text/plain"});
+    var url = null;
+
+    if (url == null){
+      url = window.URL.createObjectURL(blob);
+
+      var a = document.createElement('a')
+      a.setAttribute('href', url)
+      a.setAttribute('download', name + '.svg')
+      document.body.prepend(a);
+      a.click()
+      a.remove();
+    }
+  }
 
 
   async openSvg(){

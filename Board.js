@@ -1,8 +1,8 @@
-class Board{
-  constructor(el){
 
-    this.el = new SvgElement(el);
-    this.zoom = new ZoomAndPan(this.el);
+class Board extends SvgElement{
+  constructor(el){
+    super(el)
+    this.zoom = new ZoomAndPan(this);
     this.unit = 'mm';
     this.P_A = new Vector(0,0);
 
@@ -100,7 +100,7 @@ class Board{
   get b_r(){return new Vector(this.border, this.border)}
 
   draw_inner(){
-    let inner = this.el.createChild('path')
+    let inner = this.createChild('path')
 
     inner.M(this.P_A)
     .L(this.P_AB1)
@@ -124,7 +124,7 @@ class Board{
   }
 
   draw_outer(){
-    let outer = this.el.createChild('path');
+    let outer = this.createChild('path');
     outer.M(this.P_A.addH(-this.border))
     .A(this.b_r, 0, 0, 1, this.P_A.addV(-this.border))
     .L(this.P_C.addV(-this.border))
@@ -141,14 +141,14 @@ class Board{
   }
 
   draw_holes(){
-    this.el.createChild('ellipse', {cx: this.P_C.x - this.hole_offset, cy: this.P_C.y + this.hole_offset, rx: this.hole_r, ry: this.hole_r})
-    this.el.createChild('ellipse', {cx: this.P_D.x - this.hole_offset, cy: this.P_D.y - this.hole_offset, rx: this.hole_r, ry: this.hole_r})
-    this.el.createChild('ellipse', {cx: this.P_E.x + this.hole_offset, cy: this.P_E.y - this.hole_offset, rx: this.hole_r, ry: this.hole_r})
-    this.el.createChild('ellipse', {cx: this.P_B.x + this.hole_offset, cy: this.P_B.y + this.hole_offset, rx: this.hole_r, ry: this.hole_r})
+    this.createChild('ellipse', {cx: this.P_C.x - this.hole_offset, cy: this.P_C.y + this.hole_offset, rx: this.hole_r, ry: this.hole_r})
+    this.createChild('ellipse', {cx: this.P_D.x - this.hole_offset, cy: this.P_D.y - this.hole_offset, rx: this.hole_r, ry: this.hole_r})
+    this.createChild('ellipse', {cx: this.P_E.x + this.hole_offset, cy: this.P_E.y - this.hole_offset, rx: this.hole_r, ry: this.hole_r})
+    this.createChild('ellipse', {cx: this.P_B.x + this.hole_offset, cy: this.P_B.y + this.hole_offset, rx: this.hole_r, ry: this.hole_r})
   }
 
   draw(){
-    this.el.innerHTML = ''
+    this.innerHTML = ''
     this.draw_inner();
     this.draw_outer();
     this.draw_holes();

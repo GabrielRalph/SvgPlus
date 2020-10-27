@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SvgPlus</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <script src = "../vector.js"></script>
+  <script src = "../2.js"></script>
+  <script src = "./Hat.js"></script>
+
+  <body>
+    <div>
+<svg id = "main" viewBox="-1000 -1000 2000 2000">
+  <!-- <g id = "river-fill">
+    <path style="fill:none;stroke:#FF00FF;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;" d="
+      M303,2c0,0-51,40-69,55s-75,50-92,53s-113,21-112-8s68-11,87,8s39,39,51,59s22,40,30,49s39,28,49,48c10,20,50,86,63,114
+      s40,79,51,102s35,93,42,118s8,49,12,69s20,68,21,91s11,92,11,113s7,88,12,112s4,77,5,120s8,104-16,137s-117,102-124,134
+      s-4,84,1,113s7,68,8,93s18,69,22,84s9,31,26,55s19,36,24,36s9,5,10,27s19,72,21,107s12,160,5,184s17,30,22,31s113,0,174-18
+      s123-50,161-67s111-72,146-102s150-118,174-177"/>
+    <path style="fill:none;stroke:#FF00FF;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;" d="
+      M339,24c0,0-60,66-105,93s-92,37-126,38s-73-19-74-26s-10-13-21-15s-20-31,5-42s44-7,90,17s104,125,134,152s119,197,143,263
+      s57,186,69,253s46,222,50,340s-29,150-54,187s-75,57-101,95s-2,140,2,214s38,124,63,151s19,34,31,79s25,212,25,259s15,52,23,52
+      s120-4,161-10s91-31,144-53s142-95,223-160s140-147,154-179"/>
+  </g> -->
+</svg>
+
+    </div>
+
+  </body>
+  <script>
+    // let group = new SvgPlus('river-fill');
+    // let riverFill = new RiverFill({stitch_length: 20, resolution: 5});
+    // group.AnimateAlgorithm(riverFill);
+
+    let hat = new Hat('main');
+    hat.onclick = () => {
+      hat.saveSvg();
+    }
+  </script>
+</html>
