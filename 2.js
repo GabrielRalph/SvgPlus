@@ -169,7 +169,7 @@ class SvgPlus{
     return child;
   }
 
-  AnimateAlgorithm(algorithm){
+  animateAlgorithm(algorithm){
     try{
       if (!(algorithm.begin instanceof Function)) throw '' + new PlusError(`Aglorithm's must contain a begin function`);
       if (!(algorithm.next instanceof Function)) throw '' + new PlusError(`Aglorithm's must contain a next function`);
@@ -279,7 +279,7 @@ class SvgPlus{
           Object.defineProperty(elem, 'plus_constructor', prop);
           build = true;
         }else{
-          if (key in elem && elem[key]){
+          if (key in elem){
             try {
               elem[key] = proto[key];
             }catch (e){
