@@ -332,7 +332,7 @@ class Vector{
 			newVector = newVector.mul(new Vector(1, -1));
 		}
 						  
-	  	if( direction.indexOf('H') ){
+	  	if( direction.indexOf('H') !== -1 ){
 			newVector = newVector.mul(new Vector(-1, 1));
 		}
 		return newVector;
