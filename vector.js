@@ -229,7 +229,9 @@ class Vector{
 			return this.add(x, 0);
 		}
 	}
-
+	clone(){
+		return this.assign();
+	}
 
 	assign(){
 		return new Vector(this.x, this.y)
@@ -322,6 +324,19 @@ class Vector{
   distance(p2){
     return Math.sqrt((this.x - p2.x)*(this.x - p2.x) + (this.y - p2.y)*(this.y - p2.y))
   }
+	reflect(direction){
+		let newVector = this.clone();
+		if (typeof direction !== "string") return newVector;
+		direction = direction.toUpperCase();
+		if ( direction.indexOf('V') !== -1 ){
+			newVector = newVector.mul(new Vector(1, -1);
+		}
+						  
+	  	if( direction.indexOf('H') ){
+			newVector = newVector.mul(new Vector(-1, 1);
+		}
+		return newVector;
+	}
 
 	getPointAtDiv(p1, d){
 		if (p1 instanceof Vector){
