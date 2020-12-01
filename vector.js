@@ -329,11 +329,11 @@ class Vector{
 		if (typeof direction !== "string") return newVector;
 		direction = direction.toUpperCase();
 		if ( direction.indexOf('V') !== -1 ){
-			newVector = newVector.mul(new Vector(1, -1);
+			newVector = newVector.mul(new Vector(1, -1));
 		}
 						  
 	  	if( direction.indexOf('H') ){
-			newVector = newVector.mul(new Vector(-1, 1);
+			newVector = newVector.mul(new Vector(-1, 1));
 		}
 		return newVector;
 	}
