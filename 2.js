@@ -169,7 +169,8 @@ class SvgPlus{
     return child;
   }
 
-  animateAlgorithm(algorithm){
+  async animateAlgorithm(algorithm){
+    
     try{
       if (!(algorithm.begin instanceof Function)) throw '' + new PlusError(`Aglorithm's must contain a begin function`);
       if (!(algorithm.next instanceof Function)) throw '' + new PlusError(`Aglorithm's must contain a next function`);
@@ -179,19 +180,21 @@ class SvgPlus{
       return;
     }
 
+    return new Promise((resolve, reject) => {
+      
+
+      algorithm.begin(this);
 
 
-    algorithm.begin(this);
-
-
-    let nextFrame = (t) => {
-      if (algorithm.next(t)){
-        window.requestAnimationFrame(nextFrame);
-      }else{
-        algorithm.end();
+      let nextFrame = (t) => {
+        if (algorithm.next(t)){
+          window.requestAnimationFrame(nextFrame);
+        }else{
+          resolve(algorithm.end());
+        }
       }
-    }
-    window.requestAnimationFrame(nextFrame);
+      window.requestAnimationFrame(nextFrame);
+    });
 
   }
 
