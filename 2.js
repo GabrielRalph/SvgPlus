@@ -477,7 +477,7 @@ class LinkList{
 
         // item <=> <start> | <start> => item
       }else{
-        item.end.link(start)
+        item.end.link(this.start)
         this.start = item.start;
       }
     }
@@ -1112,7 +1112,7 @@ class SvgPath extends SvgPlus{
     return this.d.pop();
   }
   dequeue(){
-    return this.d.push();
+    return this.d.dequeue();
   }
   clear(){
     this.d.clear();
