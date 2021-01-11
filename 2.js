@@ -170,7 +170,7 @@ class SvgPlus{
   }
 
   async animateAlgorithm(algorithm){
-    
+
     try{
       if (!(algorithm.begin instanceof Function)) throw '' + new PlusError(`Aglorithm's must contain a begin function`);
       if (!(algorithm.next instanceof Function)) throw '' + new PlusError(`Aglorithm's must contain a next function`);
@@ -181,7 +181,7 @@ class SvgPlus{
     }
 
     return new Promise((resolve, reject) => {
-      
+
 
       algorithm.begin(this);
 
@@ -552,6 +552,58 @@ class CPoint extends LinkItem{
 
     this.cmd = string
   }
+
+  toggleAbsolute(){
+    if (this.isAbsolute()){
+      this.p = this.relative;
+      this.c1 = this.c1.sub(this.lastAbsolute);
+      this.c2 = this.c2.sub(this.lastAbsolute);
+      this.cmd_type = this.cmd_type.toLowerCase();
+    }else{
+      this.p = this.absolute;
+      this.c1 = this.lastAbsolute.add(this.c1);
+      this.c2 = this.lastAbsolute.add(this.c2);
+      this.cmd_type = this.cmd_type.toUpperCase();
+    }
+  }
+
+  clone(){
+    return new CPoint(`${this}`);
+  }
+
+  get lastAbsolute(){
+    if (this.last instanceof CPoint){
+      return this.last.absolute
+    }else{
+      return new Vector(0);
+    }
+  }
+
+  get lastRelative(){
+    if (this.last instanceof CPoint){
+      return this.last.relative
+    }else{
+      return new Vector(0)
+    }
+  }
+
+
+  get absolute(){
+    if (this.isAbsolute()){
+      return this.p;
+    }else{
+      return this.lastAbsolute.add(this.p)
+    }
+  }
+
+  get relative(){
+    if (this.isAbsolute()){
+      return this.p.sub(this.lastAbsolute)
+    }else{
+      return this.p;
+    }
+  }
+
 
   /* Set Svg Command Point
   svg-path-command: String
@@ -948,6 +1000,7 @@ class DPath extends LinkList{
         last = point.p;
       }
     });
+    this._update();
   }
 
   makeRelative(){
@@ -958,6 +1011,7 @@ class DPath extends LinkList{
       cur.cmd_type = cur.cmd_type.toLowerCase();
       cur = cur.last;
     }
+    this._update();
   }
 
 
@@ -1123,12 +1177,10 @@ class SvgPath extends SvgPlus{
 
   makeAbsolute(){
     this.d.makeAbsolute();
-    this.update();
   }
 
   makeRelative(){
     this.d.makeRelative();
-    this.update();
   }
 
   closest(point){

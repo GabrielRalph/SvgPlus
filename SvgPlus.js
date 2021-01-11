@@ -871,6 +871,40 @@ class CPoint extends LinkItem{
     this.cmd = string
   }
 
+  toggleAbsolute(){
+    if (this.isAbsolute()){
+      this.cmd_type = this.cmd_type.toLowerCase();
+      this.p = this.relative;
+    }else{
+      this.cmd_type = this.cmd_type.toLowerCase();
+      this.p = this.relative;
+    }
+  }
+
+  get absolute(){
+    if (this.isAbsolute()){
+      return this.p;
+    }else{
+      if (this.last instanceof CPoint){
+        return this.last.absolute.add(this.p)
+      }else{
+        return this.p;
+      }
+    }
+  }
+
+  get relative(){
+    if (this.isAbsolute()){
+      if (this.last instanceof CPoint){
+        return this.absolute.sub(this.last.absolute);
+      }else{
+        return this.p;
+      }
+    }else{
+      return this.p;
+    }
+  }
+
   /* Set Svg Command Point
   svg-path-command: String
   String Format:
