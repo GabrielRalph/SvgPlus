@@ -884,20 +884,20 @@ class DPath extends LinkList{
       }
     }
 
-    T(v1, v2){
-      if (v1 instanceof Vector && v2 instanceof Vector){
-        this.push(new CPoint(`T${v1.round(5)},${v2.round(5)}`))
+    T(v1){
+      if (v1 instanceof Vector){
+        this.push(new CPoint(`T${v1.round(5)}`))
         return this
       }else{
-        throw 'Error:\nT takes two vectors as its parameters';
+        throw 'Error:\nT takes one vectors as its parameters';
       }
     }
-    t(v1, v2){
-      if (v1 instanceof Vector && v2 instanceof Vector){
-        this.push(new CPoint(`t${v1.round(5)},${v2.round(5)}`))
+    t(v1){
+      if (v1 instanceof Vector){
+        this.push(new CPoint(`t${v1.round(5)}`))
         return this
       }else{
-        throw 'Error:\nt takes two vectors as its parameters';
+        throw 'Error:\nt takes one vectors as its parameters';
       }
     }
 
