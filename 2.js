@@ -133,6 +133,12 @@ class SvgPlus{
   get styles(){
     return this._style_set;
   }
+  set class(val){
+    this.props = {class: val}
+  }
+  get class(){
+    return this.getAttribute('class');
+  }
   set props (props){
     if (typeof props !== 'object'){
       throw `Error setting styles:\nstyles must be set using an object, not ${typeof props}`
@@ -276,8 +282,8 @@ class SvgPlus{
     }
     let build = false
     keys.forEach((key) => {
+      var prop = Object.getOwnPropertyDescriptor(proto, key);
       if (key != 'constructor'){
-        var prop = Object.getOwnPropertyDescriptor(proto, key);
         if (key == 'build'){
           Object.defineProperty(elem, 'plus_constructor', prop);
           build = true;
@@ -292,10 +298,33 @@ class SvgPlus{
             Object.defineProperty(elem, key, prop);
           }
         }
+      }else{
+        if ('__+' in elem){
+          if (Array.isArray(elem['__+'])){
+            elem['__+'].push(proto.constructor)
+          }
+        }else{
+          elem['__+'] = [proto.constructor]
+          // Object.defineProperty(elem, '__+', prop);
+        }
       }
     })
     if(build){ elem.plus_constructor()}
     return elem;
+  }
+
+  static is(element, classDef){
+    if (element instanceof Element){
+      if ('__+' in element && Array.isArray(element['__+'])){
+        for (var instance of element['__+']){
+          if (instance === classDef){
+            return true;
+          }
+        }
+      }
+
+    }
+    return false;
   }
 }
 

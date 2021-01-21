@@ -6,217 +6,31 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <script src="./vector.js"></script>
-  <script src="./SvgPlus.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-<meta name="apple-mobile-web-app-capable" content="yes">
+  <script src="./2.js"></script>
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <body>
-    <div id = "input">
-      <table>
-        <tr>
-          <th colspan = "2">
-            Breadboard
-          </th>
-          <th colspan = "2">
-            PIC board
-          </th>
-          <th colspan = "2">
-            Breadboard indent size
-          </th>
-          <th colspan = "2">
-            indent spacing
-          </th>
-        </tr>
-
-        <tr>
-          <td>
-            Width
-          </td>
-          <td>
-            <input v-model = "board.bb_width" type="number" />
-          </td>
-          <td>
-            Width
-          </td>
-          <td>
-            <input v-model = "board.pic_width" type="number" />
-          </td>
-          <td>
-            Width
-          </td>
-          <td>
-            <input v-model = "board.i_width" type="number" />
-          </td>
-          <td>
-            S1
-          </td>
-          <td>
-            <input v-model = "board.bb_i_1" type="number" />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            Height
-          </td>
-          <td>
-            <input v-model = "board.bb_height" type="number" />
-          </td>
-          <td>
-            Height
-          </td>
-          <td>
-            <input v-model = "board.pic_height" type="number" />
-          </td>
-          <td>
-            Height
-          </td>
-          <td>
-            <input v-model = "board.i_height" type="number" />
-          </td>
-          <td>
-            S2
-          </td>
-          <td>
-            <input v-model = "board.bb_i_2" type="number" />
-          </td>
-        </tr>
-        <tr>
-          <td colspan = "5">
-
-          </td>
-          <td>
-
-          </td>
-          <td>
-            S3
-          </td>
-          <td>
-            <input v-model = "board.bb_i_3" type="number" />
-          </td>
-        </tr>
-      </table>
-      <div @click = "board.draw()" class = "button">
-        draw
-      </div>
-    </div>
-    <div id = "box">
-      <svg viewBox = "-20 -20 300 200" id = "svg">
-
-      </svg>
-    </div>
 
   </body>
   <script type="text/javascript">
-  let vy = (x, y) => {
-  	let res;
-  	try {
-  		res = new Vector(x, y);
-  	}catch(e){
-  		throw e;
-  	}
-  	return res;
-  }
-    let v = vy(0, '44');
-    console.log(v);
-    let it = new Vue({
-      el: '#input',
-      data: {
-        board: new Board('svg')
+  class DHe extends SvgPlus{
+    constructor(val){
+      super('div');
+      this.hello = val;
+      this.styles = {
+        background: 'red'
       }
-    })
 
+    }
+    set hello(val){
+      this.innerHTML = 'svg plus ' + val;
+    }
+  }
 
-
+  //
   </script>
 
   <style type = "text/css">
-  body{
-    overflow: hidden;
-    user-select: none;
-    -webkit-user-select: none;
--webkit-touch-callout: none;
-touch-action:none;
 
-  }
-  .button{
-    border-radius: 100px;
-    border: 2px solid white;
-    float: right;
-    margin-top: 1em;
-    color: white;
-    display: inline;
-    padding: 0.25em 0.5em;
-    cursor: pointer;
-    user-select: none;
-
-  }
-  #input{
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
-    color: white;
-    z-index: 10;
-    font-family: sans-serif;
-    background: #22223055;
-
-  }
-
-  #box {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #222230;
-    z-index: 0;
-    overflow: hidden;
-  }
-  #box::-webkit-scrollbar-track {
-    background-color: transparent;
-    width: 10px;
-  }
-
-#box::-webkit-scrollbar {
-  display: none;
-}
-
-#box::-webkit-scrollbar-thumb {
-  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-  background-color: transparent;
-}
-  #svg{
-    fill: none;
-    stroke-width: 0.5;
-    stroke: black;
-    background: white;
-  }
-  table{
-    border-collapse: collapse;
-  }
-  th{
-    padding-bottom: 0.5em;
-  }
-  table input{
-    display: inline-block;
-    color: white;
-    border: 2px solid white;
-    outline: none;
-    border-radius: 20px;
-    background: transparent;
-    margin-left: 0.25em;
-    width: 5em;
-  }
-
-  tr td:nth-of-type(2n+2){
-    padding-right: 2em;
-    border-right: 2px solid white;
-  }
-  tr td:nth-of-type(2n+3){
-    padding-left: 2em;
-  }
-  th{
-    font-size: 1em;
-  }
   </style>
 
 </html>
