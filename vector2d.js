@@ -343,3 +343,5 @@ class Vector{
 		return `${this.x.toPrecision(this.precision)},${this.y.toPrecision(this.precision)}`
 	}
 }
+
+export {Vector}

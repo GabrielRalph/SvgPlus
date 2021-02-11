@@ -1,3 +1,4 @@
+import {Vector} from './vector2d.js'
 
 class PlusError{
   constructor(message, class_name = "Object"){
@@ -5,8 +6,8 @@ class PlusError{
     this.cls = class_name;
     let stack = new Error('helloworld');
     this.stack = stack.stack
-
   }
+
   _parse_stack(){
     let stack = this.stack
     let lines = stack.split('at ');
@@ -61,19 +62,20 @@ class PlusError{
   }
 }
 
-
-
 class SvgPlus{
   constructor(el){
     el = SvgPlus.parseElement(el);
+
+    if (el instanceof SVGPathElement){
+      return new SvgPath(el);
+    }
+
     let prototype = Object.getPrototypeOf(this);
     return SvgPlus.extend(el, prototype);
   }
 
   saveSvg(name = 'default'){
     let output = this.outerHTML;
-    // // Remove defs
-    // output = output.replace(/<defs(\s|\S)*?>(\s|\S)*?<\/defs>/g, '')
 
     // Remove excess white space
     output = output.replace(/ ( +)/g, '').replace(/^(\n)/gm, '')
@@ -108,6 +110,7 @@ class SvgPlus{
       a.remove();
     }
   }
+
   set styles(styles){
     if (typeof styles !== 'object'){
       throw `Error setting styles:\nstyles must be set using an object, not ${typeof styles}`
@@ -130,15 +133,19 @@ class SvgPlus{
       }
     }
   }
+
   get styles(){
     return this._style_set;
   }
+
   set class(val){
     this.props = {class: val}
   }
+
   get class(){
     return this.getAttribute('class');
   }
+
   set props (props){
     if (typeof props !== 'object'){
       throw `Error setting styles:\nstyles must be set using an object, not ${typeof props}`
@@ -163,6 +170,7 @@ class SvgPlus{
       }
     }
   }
+
   get props(){
     return this._prop_set;
   }
@@ -172,11 +180,63 @@ class SvgPlus{
   }
 
   makeChild(name, props = null){
-    let child = new SvgPlus(name)
+    let child;
+    child = new SvgPlus(name);
+
     this.appendChild(child);
     return child;
   }
 
+  /**
+    Wave transistion
+
+    @param update update(progress) function to be called on each animation frame
+      update function will be passed a number from 0 to 1 which will be the
+      ellapsed time mapped to a wave.
+
+    @param dir
+      true:  0 -> 1,
+      false: 1 -> 0
+
+    @param duration in milliseconds
+
+
+  */
+  async waveTransistion(update, duration = 500, dir = false){
+    if (update instanceof Function) return 0;
+
+    duration = parseInt(duration);
+    if (Number.isNaN(duration));
+
+    return new Promis((resolve, reject) => {
+      let t0;
+      let end = false;
+
+      let next = (t) => {
+        let dt = t - t0;
+
+        if (dt > duration) {
+          end = false;
+          dt = duration;
+        }
+
+        let theta = Math.PI * ( dt / duration  + (dir ? 1:0) );
+        let progress =  ( Math.cos(theta) + 1 ) / 2;
+
+        update(progress);
+
+        if (!end){
+          window.requestAnimationFrame(next);
+        }else{
+          resolve(progress);
+        }
+      };
+      window.requestAnimationFrame((t) => {
+        t0 = t;
+        window.requestAnimationFrame(next);
+      })
+    })
+  }
 
   async animateAlgorithm(algorithm){
 
@@ -341,6 +401,7 @@ class SvgPlus{
   }
 }
 
+
 class LinkItem{
   constructor(){
     this.last = null;
@@ -376,6 +437,7 @@ class LinkItem{
     }
   }
 }
+
 class LinkList{
   constructor(){
     this.start = null;
@@ -573,6 +635,7 @@ class LinkList{
     this._update();
   }
 }
+
 
 class CPoint extends LinkItem{
   constructor(string){
@@ -1068,6 +1131,7 @@ class DPath extends LinkList{
   }
 }
 
+
 class SvgPath extends SvgPlus{
   build(){
     if (!(this instanceof SVGPathElement)) throw '' + new PlusError('SvgPath must be a path');
@@ -1237,3 +1301,6 @@ class SvgPath extends SvgPlus{
     return p;
   }
 }
+
+
+export {SvgPlus, PlusError, SvgPath, LinkItem, LinkList, CPoint, DPath}

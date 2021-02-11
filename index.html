@@ -5,34 +5,14 @@
   <title>W4VES</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <script src="./vector.js"></script>
-  <script src="./2.js"></script>
+  <!-- <script type = "module" src="./3.js"></script> -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <body>
 
   </body>
-  <script type="text/javascript">
-  let body = new SvgPlus(document.body);
-  class DHe extends SvgPlus{
-    constructor(val){
-      super('div');
-      this.hello = val;
-      this.styles = {
-        background: '#7900ff',
-        color: 'white',
-        padding: '20px'
-      }
-
-    }
-    set hello(val){
-      this.innerHTML = 'svg plus ' + val;
-    }
-  }
-  let dhe = new DHe('god');
-  alert(SvgPlus.is(dhe, DHe))
-  body.appendChild(dhe)
-
-  //
+  <script type = "module" type="text/javascript">
+    import {Windows} from './Windows.js'
+    console.log(Windows);
   </script>
 
   <style type = "text/css">
