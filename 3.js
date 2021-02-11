@@ -203,7 +203,7 @@ class SvgPlus{
 
   */
   async waveTransistion(update, duration = 500, dir = false){
-    if (update instanceof Function) return 0;
+    if (!(update instanceof Function)) return 0;
 
     duration = parseInt(duration);
     if (Number.isNaN(duration));
