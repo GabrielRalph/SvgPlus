@@ -66,10 +66,6 @@ class SvgPlus{
   constructor(el){
     el = SvgPlus.parseElement(el);
 
-    if (el instanceof SVGPathElement){
-      return new SvgPath(el);
-    }
-
     let prototype = Object.getPrototypeOf(this);
     return SvgPlus.extend(el, prototype);
   }
@@ -108,6 +104,29 @@ class SvgPlus{
       document.body.prepend(a);
       a.click()
       a.remove();
+    }
+  }
+
+  watch(config, callback){
+
+    this._mutationObserver = new MutationObserver((mutation, observer) => {
+      if (!(callback instanceof Function)){
+        if (this.onmutation instanceof Function){
+          this.onmutation(mutation, observer);
+        }else{
+          return;
+        }
+      }else{
+        callback(mutation, observer);
+      }
+    })
+
+    this._mutationObserver.observe(this, config);
+  }
+
+  stopWatch(){
+    if (this._mutationObserver instanceof MutationObserver){
+      this._mutationObserver.disconnect();
     }
   }
 
@@ -175,13 +194,46 @@ class SvgPlus{
     return this._prop_set;
   }
 
-  createChild(name, props = null){
-    return this.makeChild(name, props)
+  createChild(Name, props = null){
+
+    return this.makeChild(Name, props)
   }
 
-  makeChild(name, props = null){
+  div(props){
+    return this.createChild('DIV', props);
+  }
+  table(props){
+    return this.createChild('TABLE', props);
+  }
+  tbody(props){
+    return this.createChild('TBODY', props);
+  }
+  tr(props){
+    return this.createChild('TR', props);
+  }
+  td(props){
+    return this.createChild('TD', props);
+  }
+  input(props){
+    return this.createChild('INPUT', props);
+  }
+  svg(props){
+    return this.createChild('svg', props);
+  }
+  path(props){
+    return this.createChild(SvgPath, props);
+  }
+
+
+
+  makeChild(Name, props = null){
     let child;
-    child = new SvgPlus(name);
+    if (Name instanceof Function && Name.prototype instanceof SvgPlus){
+      child = new Name();
+    }else{
+      child = new SvgPlus(Name);
+    }
+    child.props = props;
 
     this.appendChild(child);
     return child;
@@ -1067,6 +1119,7 @@ class DPath extends LinkList{
       throw `Error setting d:\nd must be set to a string, not ${typeof string}`
       return
     }
+
     //Remove white space
     let cmds = string.replace(/( |\n|\t|\r)/g, '');
 
@@ -1075,7 +1128,6 @@ class DPath extends LinkList{
     cmds = cmds.slice(1);
     //Split
     cmds = cmds.split('\n');
-
 
     cmds.forEach((cmd) => {
       let error = false;
@@ -1134,6 +1186,20 @@ class DPath extends LinkList{
 
 
 class SvgPath extends SvgPlus{
+  constructor(el = null){
+    if (el === null) el = 'path';
+    super(el);
+
+    this.watch({attributes: true})
+  }
+
+  onmutation(mutation){
+    let d = this.getAttribute('d');
+    if (this.d_string !== d){
+      this.d_string = d;
+    }
+  }
+
   build(){
     if (!(this instanceof SVGPathElement)) throw '' + new PlusError('SvgPath must be a path');
 
