@@ -98,8 +98,6 @@ class Frame extends SvgPlus{
       bottom: 0,
       position: 'absolute',
     }
-
-
   }
 
   set xPos(val){

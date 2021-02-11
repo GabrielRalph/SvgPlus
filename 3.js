@@ -208,7 +208,7 @@ class SvgPlus{
     duration = parseInt(duration);
     if (Number.isNaN(duration));
 
-    return new Promis((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       let t0;
       let end = false;
 
