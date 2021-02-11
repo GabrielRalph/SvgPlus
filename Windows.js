@@ -70,17 +70,18 @@ class Windows extends SvgPlus{
     this.right = null;
   }
 
-  async moveInWaveTo(element, dir, duration = 400){
+  async moveInWaveTo(element, duration = 400, dir){
     if (dir){
-      this.left = element;
-    }else{
       this.right = element;
+    }else{
+      this.left = element;
     }
 
     await this.waveTransistion((progress) => {
       this.xPos = 100 * progress * (dir ? -1 : 1);
-    }, true, duration);
-
+      console.log(progress);
+    }, duration, true);
+    console.log('x');
     this.xPos = 0;
     this.center = element;
   }

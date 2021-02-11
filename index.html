@@ -10,12 +10,49 @@
 
   </body>
   <script type = "module" type="text/javascript">
-    import {Windows} from 'https://www.svg.plus/Windows.js'
-    console.log(Windows);
+    import {Windows} from './Windows.js'
+    import {SvgPlus} from './3.js'
+
+    let windows = new Windows();
+    let a = new SvgPlus('div');
+    a.class = "a";
+
+    let b = new SvgPlus('div');
+    b.class = "b";
+
+    document.body.appendChild(windows);
+
+    windows.moveTo(a);
+
+    windows.onclick = () => {
+      windows.moveTo(b);
+    }
   </script>
 
   <style type = "text/css">
 
+    .windows{
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 100%;
+      width: 100%;
+    }
+    .a, .b{
+      width: 100%;
+      height: 100%;
+
+    }
+    .a{
+      background: green;
+
+    }
+    .b{
+      background: blue;
+
+    }
   </style>
 
 </html>

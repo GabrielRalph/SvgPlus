@@ -206,7 +206,7 @@ class SvgPlus{
     if (!(update instanceof Function)) return 0;
 
     duration = parseInt(duration);
-    if (Number.isNaN(duration));
+    if (Number.isNaN(duration)) return 0;
 
     return new Promise((resolve, reject) => {
       let t0;
@@ -216,11 +216,11 @@ class SvgPlus{
         let dt = t - t0;
 
         if (dt > duration) {
-          end = false;
+          end = true;
           dt = duration;
         }
 
-        let theta = Math.PI * ( dt / duration  + (dir ? 1:0) );
+        let theta = Math.PI * ( dt / duration  +  (dir ? 1 : 0) );
         let progress =  ( Math.cos(theta) + 1 ) / 2;
 
         update(progress);
@@ -228,6 +228,7 @@ class SvgPlus{
         if (!end){
           window.requestAnimationFrame(next);
         }else{
+          console.log('end');
           resolve(progress);
         }
       };
