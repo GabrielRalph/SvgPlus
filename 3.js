@@ -54,7 +54,6 @@ class PlusError{
       // stack_data.push(this._stack_line_parser(line))
     }
     return 'Error\n' + message + tab + this.msg
-    // console.log(stack_data);
   }
 
   toString(){
@@ -280,7 +279,6 @@ class SvgPlus{
         if (!end){
           window.requestAnimationFrame(next);
         }else{
-          console.log('end');
           resolve(progress);
         }
       };
@@ -922,7 +920,6 @@ class CPoint extends LinkItem{
   }
 
   dist(v){
-    console.log(v);
     return this.p.dist(v);
   }
 
