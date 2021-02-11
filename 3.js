@@ -198,33 +198,6 @@ class SvgPlus{
     return this.makeChild(Name, props)
   }
 
-  div(props){
-    return this.createChild('DIV', props);
-  }
-  table(props){
-    return this.createChild('TABLE', props);
-  }
-  tbody(props){
-    return this.createChild('TBODY', props);
-  }
-  tr(props){
-    return this.createChild('TR', props);
-  }
-  td(props){
-    return this.createChild('TD', props);
-  }
-  input(props){
-    return this.createChild('INPUT', props);
-  }
-  svg(props){
-    return this.createChild('svg', props);
-  }
-  path(props){
-    return this.createChild(SvgPath, props);
-  }
-
-
-
   makeChild(Name, props = null){
     let child;
     if (Name instanceof Function && Name.prototype instanceof SvgPlus){
