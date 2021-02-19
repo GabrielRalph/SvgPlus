@@ -665,7 +665,6 @@ class LinkList{
   }
 }
 
-
 class CPoint extends LinkItem{
   constructor(string){
     super()
@@ -1094,7 +1093,6 @@ class DPath extends LinkList{
       throw `Error setting d:\nd must be set to a string, not ${typeof string}`
       return
     }
-
     //Remove white space
     let cmds = string.replace(/( |\n|\t|\r)/g, '');
 
@@ -1103,6 +1101,7 @@ class DPath extends LinkList{
     cmds = cmds.slice(1);
     //Split
     cmds = cmds.split('\n');
+
 
     cmds.forEach((cmd) => {
       let error = false;
@@ -1159,7 +1158,6 @@ class DPath extends LinkList{
   }
 }
 
-
 class SvgPath extends SvgPlus{
   constructor(el = null){
     if (el === null) el = 'path';
@@ -1173,15 +1171,6 @@ class SvgPath extends SvgPlus{
     if (this.d_string !== d){
       this.d_string = d;
     }
-  }
-
-  build(){
-    if (!(this instanceof SVGPathElement)) throw '' + new PlusError('SvgPath must be a path');
-
-    this.d = new DPath(this.getAttribute('d'));
-    this.d.addUpdateListener(() => {
-      this.setAttribute('d', this.d_string);
-    })
   }
 
 
@@ -1237,14 +1226,6 @@ class SvgPath extends SvgPlus{
 
   getVectorAtLength(l){
     return new Vector(this.getPointAtLength(l));
-  }
-
-  parseVector(args){
-    if (args[0] instanceof Vector){
-      return args;
-    }else{
-      return new Vector(args);
-    }
   }
 
 //Path push functions
