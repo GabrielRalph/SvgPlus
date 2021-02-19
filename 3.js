@@ -1163,6 +1163,12 @@ class SvgPath extends SvgPlus{
     if (el === null) el = 'path';
     super(el);
 
+    this.d = new DPath(this.getAttribute('d'));
+
+    this.d.addUpdateListener(() => {
+      this.setAttribute('d', this.d_string);
+    })
+    
     this.watch({attributes: true})
   }
 
