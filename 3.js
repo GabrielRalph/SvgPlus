@@ -206,7 +206,9 @@ class SvgPlus{
     }else{
       child = new SvgPlus(Name);
       try{
-        child.props = arguments[1];
+        if (arguments[1]){
+          child.props = arguments[1];
+        }
       }catch(e){
         console.error(e);
       }
@@ -1168,7 +1170,7 @@ class SvgPath extends SvgPlus{
     this.d.addUpdateListener(() => {
       this.setAttribute('d', this.d_string);
     })
-    
+
     this.watch({attributes: true})
   }
 
