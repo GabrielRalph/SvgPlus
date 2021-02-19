@@ -193,19 +193,24 @@ class SvgPlus{
     return this._prop_set;
   }
 
-  createChild(Name, props = null){
-
-    return this.makeChild(Name, props)
+  createChild(){
+    return this.makeChild.apply(this, arguments)
   }
 
-  makeChild(Name, props = null){
+  makeChild(){
+    let Name = arguments[0];
     let child;
+
     if (Name instanceof Function && Name.prototype instanceof SvgPlus){
-      child = new Name();
+      child = new Name(arguments[1])
     }else{
       child = new SvgPlus(Name);
+      try{
+        child.props = arguments[1];
+      }catch(e){
+        console.error(e);
+      }
     }
-    child.props = props;
 
     this.appendChild(child);
     return child;
@@ -1232,6 +1237,14 @@ class SvgPath extends SvgPlus{
 
   getVectorAtLength(l){
     return new Vector(this.getPointAtLength(l));
+  }
+
+  parseVector(args){
+    if (args[0] instanceof Vector){
+      return args;
+    }else{
+      return new Vector(args);
+    }
   }
 
 //Path push functions

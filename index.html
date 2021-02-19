@@ -15,47 +15,23 @@
     import {Vector} from './vector2d.js'
 
     class Test extends SvgPlus{
-      constructor(){
-        super('div');
-        this.class = 'c'
+      constructor(v){
+        super('svg');
+
+        this.path = this.createChild(SvgPath);
+        this.path.M(v);
+        this.path.L(v.mul(0));
+        this.path.props = {stroke: "black"}
       }
     }
 
-    class Test2 extends Test{
 
+    let body = new SvgPlus(document.body);
+    let svg = body.createChild(Test, new Vector(5, 5), new Vector(0, 0));
+    svg.props = {
+      viewBox: "0 0 10 10"
     }
 
-    let windows = new Windows();
-    let a = new SvgPlus('div');
-  
-
-
-
-    console.log(path.d_string);
-    path.d_string = 'M0,0L60,50L70,0L25,25L0,0';
-    console.log(path.d_string);
-    // path.L(new Vector(44, 33));
-
-
-
-    let b = new SvgPlus('div');
-    b.createChild(Test2, {style: {
-      padding: '8vw',
-      margin: '4vw',
-      background: 'red',
-      width: 'calc(100% - 16vw - 8vh)',
-      height: 'calc(100% - 16vw - 8vh)'
-    }})
-
-    b.class = "b";
-
-    document.body.appendChild(windows);
-
-    windows.moveTo(a);
-
-    windows.onclick = () => {
-      windows.moveTo(b);
-    }
   </script>
 
   <style type = "text/css">
