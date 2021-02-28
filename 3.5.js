@@ -1,5 +1,3 @@
-import {Vector} from './vector2d.js'
-
 class PlusError{
   constructor(message, class_name = "Object"){
     this.msg = message;
