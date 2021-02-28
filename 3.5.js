@@ -822,7 +822,7 @@ class LinkItem{
     }
   }
 
-  get last(last){
+  get last(){
     return this._last;
   }
 
