@@ -1618,7 +1618,7 @@ class DPath extends LinkList{
         last = point.p;
       }
     });
-    this._update();
+    this.update();
   }
 
   makeRelative(){
@@ -1629,7 +1629,7 @@ class DPath extends LinkList{
       cur.cmd_type = cur.cmd_type.toLowerCase();
       cur = cur.last;
     }
-    this._update();
+    this.update();
   }
 
 
