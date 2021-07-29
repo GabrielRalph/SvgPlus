@@ -1,4 +1,4 @@
-import {SvgPlus, SvgPath, Vector} from '../3.dst.js'
+import {SvgPlus, SvgPath, Vector} from './3.dst.js'
 
 class DstBuffer{
   constructor(name = "myCam"){
