@@ -362,7 +362,7 @@ class DstBuffer{
       if (Math.abs(dp.x) > 118 || Math.abs(dp.y) > 118) {
         throw 'Point exceeds maximum distance ' + p
       }
-      this._stitschCount++;
+      this._stitchCount++;
       this._lastPoint = this.lastPoint.add(dp);
       this._minX = this.lastPoint.x<this._minX?this.lastPoint.x:this._minX;
       this._minY = this.lastPoint.y<this._minY?this.lastPoint.y:this._minY;
@@ -403,6 +403,10 @@ class SvgToDst extends DstBuffer{
   constructor(name){
     super(name);
     this.lastColor = null;
+    this.backstitch = {
+      stitches: 3,
+      repeat: 1
+    }
   }
 
   encode(element) {
@@ -420,6 +424,8 @@ class SvgToDst extends DstBuffer{
       this._center = new Vector(cx, cy);
       this._encodeGroup(element);
     }
+
+    console.log(this.stitchCount);
   }
 
   get center(){
@@ -443,7 +449,7 @@ class SvgToDst extends DstBuffer{
   _encodePath(path) {
     if (!SvgPlus.is(path, SvgPath)) return;
 
-    console.log(path);
+    // console.log(path);
     let loop = parseInt(path.loop);
     if (Number.isNaN(loop) || typeof loop !== 'number') loop = 1;
 
@@ -462,17 +468,53 @@ class SvgToDst extends DstBuffer{
       this.jumpTo(start);
     }
 
-    for (let i = 0; i < loop; i++) {
+    //reflect and subtract center
+    let trans = (p) => {return p.p.sub(this.center).mul(new Vector(1, -1))}
+    let add_inc = (c, dir) => {
+      this.addPoint(trans(c));
+      return dir ? c.next : c.last;
+    }
 
-      let cur = i % 2 == 0 ? path.d.start : path.d.end;
-      while(cur != null) {
-        //reflect and subtract center
-        let p = cur.p.sub(this.center).mul(new Vector(1, -1));
+    let bs_n = this.backstitch.stitches;
+    let bs_r = this.backstitch.repeat;
 
-        this.addPoint(p);
-        cur = i % 2 == 0 ? cur.next : cur.last;
+    let cur = path.d.start;
+
+    // backstitch at start
+    if (path.d.length > bs_n) {
+      for (let j = 0; j < bs_r; j++){
+
+        // foward
+        for (let k = 0; k < bs_n; k++)
+        cur = add_inc(cur, true);
+
+        // back
+        for (let k = 0; k < bs_n; k++)
+        cur = add_inc(cur, false);
       }
     }
+
+    // stitch entire path
+    let i;
+    for (i = 0; i < loop; i++) {
+      while((cur.next != null || i % 2 != 0) && (cur.last != null || i % 2 == 0))
+        cur = add_inc(cur, i % 2 == 0);
+    }
+
+    // backstitch at end
+    if (path.d.length > bs_n){
+      for (let j = 0; j < bs_r; j++){
+        // go foward
+        for (let k = 0; k < bs_n; k++)
+          cur = add_inc(cur, i % 2 == 0);
+
+        // go backwards
+        for (let k = 0; k < bs_n; k++)
+          cur = add_inc(cur, i % 2 != 0);
+      }
+    }
+
+    this.addPoint(trans(cur));
   }
 }
 
