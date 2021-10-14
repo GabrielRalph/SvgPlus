@@ -1,240 +1,58 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Mens tailered pants</title>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <script src="../vector.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-  <script src="../SvgPlus.js"></script>
-  <script src="./Mens_tailered_pants.js"></script>
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
   <body>
-    <table id = "inputs">
-
-      <tr>
-        <td  @click = "hide">
-          <label for = "Hc">Hip Circumference</label>
-        </td>
-        <td>
-          <input type = "number" v-model = "pants.Hc"/><h4 @click = "changeUnit">{{unit}}</h4>
-        </td>
-      </tr>
-      <tr>
-        <td @click = "hide">
-          <label for = "Wbc">Waistband Circumference</label>
-        </td>
-        <td>
-          <input type = "number" v-model = "pants.Wbc"/><h4 @click = "changeUnit">{{unit}}</h4>
-        </td>
-      </tr>
-      <tr>
-        <td @click = "hide">
-          <label for = "Sl">Side length</label>
-        </td>
-        <td>
-          <input type = "number" v-model = "pants.Sl"/><h4 @click = "changeUnit">{{unit}}</h4>
-        </td>
-      </tr>
-      <tr>
-        <td @click = "hide">
-          <label for = "Ins">Inseam</label>
-        </td>
-        <td>
-          <input type = "number" v-model = "pants.Ins"/><h4 @click = "changeUnit">{{unit}}</h4>
-        </td>
-      </tr>
-      <tr v-if = "shown">
-        <td @click = "hide">
-          <label for = "Hw">Hem width</label>
-        </td>
-        <td>
-          <input type = "number" v-model = "pants.Hw"/><h4 @click = "changeUnit">{{unit}}</h4>
-        </td>
-      </tr>
-      <tr v-if = "!shown" @click = "show">
-        <td >
-        </td>
-        <td>
-          >
-        </td>
-      </tr>
-    </table>
-    <table id = "saver">
-      <tr>
-        <td>
-          Plate
-        </td>
-        <td>
-          <input v-model = "plate"/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          Name
-        </td>
-        <td>
-          <input v-model = "name"/>
-        </td>
-      </tr>
-      <tr>
-        <td>
-
-        </td>
-        <td @click = "save" style = "float: right; background: #06002330; border-radius: 20px;
-        padding: 5px">
-          save
-        </td>
-      </tr>
-    </table>
-    <svg viewBox ="-10 -10 100 140" height = "100vh" id = "svg2" stroke-width = '0.1' fill = "none">
-    </svg>
-
-  </body>
-  <script type="text/javascript">
-
-  let inputs = new Vue({
-    el: "#inputs",
-    data: {
-      pants: new MensTaileredPants("svg2"),
-      unit: 'cm',
-      shown: true,
-    },
-    methods: {
-      changeUnit: function(){
-        if (this.unit == 'cm'){
-          this.unit = 'in';
-          this.pants.unit = this.unit
-        }else if (this.unit == 'in'){
-          this.unit = 'cm';
-          this.pants.unit = this.unit
+    <svg id = pants>
+      <style>
+        g path:first-of-type{
+          fill: none;
+          stroke: #0002;
+          stroke-width: 3;
         }
-      },
-      hide: function(){
-        let el = document.getElementById("inputs");
+        g path:last-of-type {
+          fill: white;
+          stroke: black;
+          stroke-width: 0.2;
+        }
 
-        el.setAttribute('style', 'transform: translate(-100%, -100%); top: 20px; left: 20px;');
-        // el.style.setProperty('top', '10px');
-        // el.style.setProperty('left', '10px');
-        this.shown = false;
-      },
-      show: function(){
-        this.shown = true;
-        let el = document.getElementById("inputs");
-
-        el.setAttribute('style', 'transform: translate(0, 0); top: 0px; left: 0px;');
-      }
-    },
-    created(){
-      this.pants.props = {stroke: 'grey', fill: "#060023"};
-    },
-    mounted(){
-      let el = document.getElementById("inputs");
-      this.size = new Vector(el.clientWidth, el.clientHeight);
+        .points {
+          font-size: 0.1em;
+          fill: #ff1400;
+        }
+        g.guides path {
+          fill: none;
+          stroke: #0092ff;
+          stroke-width:0.2;
+        }
+      </style>
+    </svg>
+  </body>
+  <style>
+    @page{
+      size: A0;
+      margin: 0;
     }
-
-
-  })
-
-  let saver = new Vue({
-    el: '#saver',
-    data: {
-      plate: '',
-      name: '',
-      input: inputs,
-    },
-    methods: {
-      save: function(){
-        if (this.plate.length == 0 || this.name.length == 0) return;
-        console.log(`/designs/${this.plate}`);
-        console.log({
-          name: this.name,
-          measurements: this.input.pants.specs
-        });
-        // firebase.database().ref(`/designs/${this.plate}`).set()
+    @media print {
+      svg {
+        width: 841mm;
+      }
+      g.guides {
+        opacity: 0;
+      }
+      .points {
+        opacity: 0;
       }
     }
-  })
-
-  </script>
-
-  <style type = "text/css">
-    #inputs h4{
-      display: inline-block;
-      font-size: 1em;
+    body {
       margin: 0;
-      margin-left: -20px;
-
-    }
-    #inputs, #saver{
-      position: fixed;
-      margin: 0;
-      z-index: 20;
-      background: #06002360;
-      padding: 5px;
-      padding-right: 10px;
-      border-radius: 0 0px 20px 0px;
-      color: white;
-      transition: 0.3s ease-in;
-      /* top: -100px;
-      left: -100px; */
-    }
-
-
-
-
-    #svg2{
-      transform: scaleY(-1);
-      stroke-width: 0.1;
-      position: fixed:
-      top: 0;
-      left: 0;
-
-    }
-    body{
-      font-family: monospace;
-      background: #06002340;
-      margin: 0;
-    }
-    body::-webkit-scrollbar{
-      display: none;
-    }
-    input{
-      border-radius: 20px;
-      outline: none;
-      border: none;
-      background: #06002330;
-      color: white;
-      font-family: monospace;
-      padding: 3px;
-      padding-right: 25px;
-      width: 60px;
-      text-align: right;
-    }
-    input:hover{
-      background: #06002360;
-
-    }
-    input[type=number]::-webkit-inner-spin-button,
-    input[type=number]::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-    }
-    g{
-    }
-    #svg2 text{
-      fill: blue;
-      font-size: 01.5px;
-    }
-    .flip{
-      transform: scaleY(-1);
-      transform-origin: 2% 40%;
-    }
-    #saver{
-      position: fixed;
-      top: 0;
-      right: 0;
-      border-radius: 0 0 0 20px;
     }
   </style>
+  <script type = "module">
+    import {Pants} from "./pants.js"
+    let pants = new Pants("pants");
+  </script>
 
 </html>

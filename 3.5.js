@@ -60,6 +60,7 @@ class PlusError{
 }
 
 // 2D vector class
+let DecimalPlaces = 5;
 class Vector{
 	constructor(x = 0, y = null){
 		try{
@@ -167,7 +168,8 @@ class Vector{
 			this.y = 0;
 			console.error(`error creating vector\n\n${e}\n\nResult: V(${this})`);
 		}
-		this.precision = 10;
+
+    this.decimalPlaces = DecimalPlaces;
 	}
 
 	forMate(val){
@@ -395,11 +397,14 @@ class Vector{
 			}
 		}
 	}
+
 	isZero(){
 		return (this.x == 0 && this.y == 0)
 	}
+
 	toString(){
-		return `${this.x.toPrecision(this.precision)},${this.y.toPrecision(this.precision)}`
+    let v = this.round(this.decimalPlaces);
+    return `${v.x},${v.y}`
 	}
 }
 
