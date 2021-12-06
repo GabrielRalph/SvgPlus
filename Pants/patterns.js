@@ -382,6 +382,7 @@ class BackBlockPants extends Pattern {
     let scale = m.hip / 2;
     this.scale = scale;
     let seat_angle_delta = 0.5;
+    if (m.back_seat_angle) seat_angle_delta = m.back_seat_angle;
 
     this[0] = zero.clone();
     this[13] = this[0].addH(scale / 6);
