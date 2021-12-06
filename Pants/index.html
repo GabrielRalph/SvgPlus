@@ -5,54 +5,127 @@
     <title></title>
   </head>
   <body>
-    <svg id = pants>
-      <style>
-        g path:first-of-type{
-          fill: none;
-          stroke: #0002;
-          stroke-width: 3;
-        }
-        g path:last-of-type {
-          fill: white;
-          stroke: black;
-          stroke-width: 0.2;
-        }
-
-        .points {
-          font-size: 0.1em;
-          fill: #ff1400;
-        }
-        g.guides path {
-          fill: none;
-          stroke: #0092ff;
-          stroke-width:0.2;
-        }
-      </style>
-    </svg>
+    <svg id = "pattern2" viewBox = "0 0 84.1 118.8"></svg>
   </body>
-  <style>
-    @page{
-      size: A0;
-      margin: 0;
+  <script type="module">
+    import {PatternSvg, Skirt, Pants, FrontBlockPants,BackBlockPants, size12, Vector} from "./patterns.js";
+    import {LineNote} from "../SvgComponents/LineNote.js"
+
+    const gabriel = {
+      waist_to_knee: 55,
+      outside_leg: 94,
+      body_rise: 26,
+      waist_to_hip: 18,
+      waist: 72,
+      hip: 90,
+      nap_to_waist:48,
+      bust: 85,
+
+      skirt_length: 20,
+      half_across_back: 17.5,
+      armhole_depth: 18.6,
+      armhole_width: 12,
+      neck_base: 40,
+      armhole: 46,
+      nap_to_bust_point: 32,
+    };
+
+    // let bodice = new Bodice(size12);
+    let skirt = new Skirt(gabriel);
+    let pants = new FrontBlockPants(gabriel, new Vector(70, 10));
+    let pants2 = new BackBlockPants(gabriel, new Vector(20, 10));
+    // let pants2 = new FrontBlockPants(size12, new Vector(50, 0));
+    // let pattern = new PatternSvg("pattern");
+    let pattern2 = new PatternSvg("pattern2");
+
+    // for (let x = 0)
+    // pattern.drawPattern(bodice)
+    pattern2.drawPatternPath(pants);
+    pattern2.drawPatternPath(pants);
+    pattern2.drawPatternPath(pants2);
+    pattern2.drawPatternPath(pants2);
+    pattern2.drawPatternDots(pants2);
+    pattern2.drawPatternDots(pants);
+    for (let y = 1; y <= 118; y++) {
+      pattern2.appendChild(new LineNote({
+        position: "0, "+ y,
+        line: "1, 0",
+        offset: "0.3",
+        note: {
+          content: y
+        }
+      }))
     }
-    @media print {
-      svg {
-        width: 841mm;
-      }
-      g.guides {
-        opacity: 0;
-      }
-      .points {
-        opacity: 0;
-      }
+    for (let x = 1; x <= 84; x++) {
+      pattern2.appendChild(new LineNote({
+        position: x + ", 0",
+        line: "0, 1",
+        offset: "0.5",
+        note: {
+          content: x,
+          align: "middle"
+        }
+      }))
     }
-    body {
-      margin: 0;
-    }
-  </style>
-  <script type = "module">
-    import {Pants} from "./pants.js"
-    let pants = new Pants("pants");
+
   </script>
 
+  <style>
+    @media print {
+      svg {
+      }
+      body {margin: 0;}
+    }
+    .dots {
+      opacity: 0.3;
+    }
+    .line-note path {
+      stroke: grey;
+      stroke-width: 0.1;
+    }
+    .line-note text.note {
+      font-size: 0.05em;
+    }
+    text.note {
+      font-size: 0.10em;
+    }
+    .desc thead tr td:last-of-type{
+      text-align: center;
+    }
+    .desc tbody tr td:nth-of-type(3){
+      text-align: right;
+      padding-right: 1em;
+      vertical-align: bottom;
+    }
+    .desc tbody tr td:nth-of-type(1){
+      text-align: right;
+      padding-right: 1em;
+      vertical-align: top;
+    }
+    .detail {
+      display: none;
+      display: flex;
+      flex-direction: row;
+    }
+    .detail > div{
+      overflow: scroll;
+      height: 50vh;
+    }
+    .A {
+      fill: red;
+    }
+    .B {fill: green;}
+    .C{fill: blue;}
+    .pattern {
+      stroke: black;
+      fill: white;
+      stroke-width: 0.1;
+    }
+    .pattern:nth-of-type(2n + 1) {
+      stroke-width: 3;
+      stroke: #0003;
+    }
+
+
+  </style>
 </html>
