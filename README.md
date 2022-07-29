@@ -11,11 +11,11 @@ If a tagname is provided then a new element of that tagname will be created.
 ```
 SvgPlus has some simple methods to simplify common tasks. For example
 ```JavaScript
-  set styles(obj) //applies styles (in json form) to the element.
-  get styles() //returns the set of styles applied using set styles.
+  set styles(obj){} //applies styles (in json form) to the element.
+  get styles(){} //returns the set of styles applied using set styles.
 
-  set props(obj) //applies attributes (in json form) to the element.
-  get props() //returns the set of attributes applied using set props.
+  set props(obj){} //applies attributes (in json form) to the element.
+  get props(){} //returns the set of attributes applied using set props.
 ```
 
 By extending the SvgPlus class custom elements can be created. For example
