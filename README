@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title></title>
-  </head>
-  <body>
-    <div>
+
       <h2>SvgPlus</h2>
       SvgPlus is a class that on construction extends itself upon a HTML Element.
       <br />
@@ -61,55 +54,3 @@
 
         }
       </pre>
-
-    </div>
-  </body>
-
-  <script type="module">
-    import {SvgPlus} from "./5.js";
-    class DivA extends SvgPlus{
-
-      a(){}
-    }
-
-
-    class DivB extends DivA {
-      constructor(el = "div"){
-        super(el);
-        console.log('div-b instantiated');
-        this.styles = {
-          background: "blue",
-          width: "10px",
-          height: "10px"
-        }
-        this.innerHTML = "";
-
-      }
-
-      onclick(){
-        console.log('x');
-      }
-
-    }
-
-
-    class NewElement extends DivA {
-      constructor(el){
-        super(el);
-        this.styles = {
-          width: "50px",
-          height: "50px",
-          background: "red",
-          display: "block"
-        }
-        console.log("new-element instantiated");
-        // console.log(this.children[0].makeChild("svg"));
-      }
-
-      be(){console.log('a');}
-    }
-
-    let element = new NewElement("div");
-
-  </script>
-</html>
