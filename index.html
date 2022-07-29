@@ -1,63 +1,115 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>W4VES</title>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
   <body>
+    <div>
+      <h2>SvgPlus</h2>
+      SvgPlus is a class that on construction extends itself upon a HTML Element.
+      <br />
+      <br />
+      There is one parameter to the SvgPlus constructor, either an element, id or tagname.
+      If a tagname is provided then a new element of that tagname will be created.
+      <pre>
+        let element = document.querySelector("div.some-class");
+        let plusElement1 = new SvgPlus(element);    // element reference
+        let plusElement2 = new SvgPlus("some-id");  // id attribute
+        let plusElement3 = new SvgPlus("span");     // tagname
+      </pre>
+      SvgPlus has some simple methods to simplify common tasks. For example
+      <pre>
+        set styles(obj) applies styles (in json form) to the element.
+        get styles() returns the set of styles applied using set styles.
 
+        set props(obj) applies attributes (in json form) to the element.
+        get props() returns the set of attributes applied using set props.
+      </pre>
+
+      By extending the SvgPlus class custom elements can be created. For example
+      <pre>
+        class RedSquare extends SvgPlus {
+
+          constructor(el, size){
+            super(el);
+
+            this.styles = {
+              width: size + "px",
+              height: size + "px",
+              background: red
+            }
+          }
+
+        }
+      </pre>
+      By adding methods to our class we can add more functionality.
+      <pre>
+        class RedSquare extends SvgPlus {
+
+          constructor(el){
+            super(el);
+            this.styles = {background: "red"};
+          }
+
+          set size(size) {
+            this.styles = {
+              width: size + "px",
+              height: size + "px"
+            }
+          }
+
+        }
+      </pre>
+
+    </div>
   </body>
-  <script type = "module" type="text/javascript">
-    import {Windows} from './Windows.js'
-    import {SvgPlus, SvgPath} from './3.js'
-    import {Vector} from './vector2d.js'
 
-    class Test extends SvgPlus{
-      constructor(v){
-        super('svg');
+  <script type="module">
+    import {SvgPlus} from "./5.js";
+    class DivA extends SvgPlus{
 
-        this.path = this.createChild(SvgPath);
-        this.path.M(v);
-        this.path.L(v.mul(0));
-        this.path.props = {stroke: "black"}
+      a(){}
+    }
+
+
+    class DivB extends DivA {
+      constructor(el = "div"){
+        super(el);
+        console.log('div-b instantiated');
+        this.styles = {
+          background: "blue",
+          width: "10px",
+          height: "10px"
+        }
+        this.innerHTML = "";
+
       }
+
+      onclick(){
+        console.log('x');
+      }
+
     }
 
 
-    let body = new SvgPlus(document.body);
-    let svg = body.createChild(Test, new Vector(5, 5), new Vector(0, 0));
-    svg.props = {
-      viewBox: "0 0 10 10"
+    class NewElement extends DivA {
+      constructor(el){
+        super(el);
+        this.styles = {
+          width: "50px",
+          height: "50px",
+          background: "red",
+          display: "block"
+        }
+        console.log("new-element instantiated");
+        // console.log(this.children[0].makeChild("svg"));
+      }
+
+      be(){console.log('a');}
     }
+
+    let element = new NewElement("div");
 
   </script>
-
-  <style type = "text/css">
-
-    .windows{
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 100%;
-      width: 100%;
-    }
-    .a, .b{
-      width: 100%;
-      height: 100%;
-
-    }
-    .a{
-      background: green;
-
-    }
-    .b{
-      background: blue;
-
-    }
-  </style>
-
 </html>
