@@ -1,4 +1,4 @@
-import {SvgPlus, Vector, parseVector} from "./5.js"
+import {SvgPlus, Vector, parseVector} from "./4.js"
 
 function pow(number, ind) {return Math.pow(number, ind)}
 function isNonNaNVector(v) {
