@@ -489,6 +489,18 @@ class SvgPlus{
     return parsed;
   }
 
+
+  static parseSVGString(string){
+    let parser = new DOMParser()
+    let doc = parser.parseFromString(string, "image/svg+xml");
+    let errors = doc.getElementsByTagName('parsererror');
+    if (errors && errors.length > 0){
+      throw '' + new PlusError(`${errors[0]}`)
+      return null
+    }
+    return doc.firstChild
+  }
+
   static is(el, cdef) {
     return is(el, cdef);
   }
@@ -501,13 +513,7 @@ class SvgPlus{
     let className = classDef.name.replace(/(\w)([A-Z][^A-Z])/g, "$1-$2").toLowerCase();
     let props = Object.getOwnPropertyDescriptors(classDef.prototype);
 
-    let setters = [];
-    for (let propName in props) {
-      let prop = props[propName]
-      if ("set" in prop && prop.set instanceof Function) {
-        setters.push(propName);
-      }
-    }
+    let setters = classDef.observedAttributes;
 
     let htmlClass = class extends HTMLElement{
       constructor(){
