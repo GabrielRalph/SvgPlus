@@ -494,7 +494,7 @@ class SvgPlus{
     let doc = parser.parseFromString(string, "image/svg+xml");
     let errors = doc.getElementsByTagName('parsererror');
     if (errors && errors.length > 0){
-      throw '' + new PlusError(`${errors[0]}`)
+      throw `${errors[0]}`
       return null
     }
     return doc.firstChild
