@@ -489,7 +489,6 @@ class SvgPlus{
     return parsed;
   }
 
-
   static parseSVGString(string){
     let parser = new DOMParser()
     let doc = parser.parseFromString(string, "image/svg+xml");
