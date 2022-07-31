@@ -494,10 +494,13 @@ class SvgPlus{
     let doc = parser.parseFromString(string, "image/svg+xml");
     let errors = doc.getElementsByTagName('parsererror');
     if (errors && errors.length > 0){
-      throw `${errors[0]}`
-      return null
+      throw doc
     }
-    return doc.firstChild
+    let psvg = doc.firstChild;
+    let svg = make("svg");
+    svg.setAttribute("viewBox", psvg.getAttribute("viewBox"));
+    svg.innerHTML = psvg.innerHTML;
+    return svg;
   }
 
   static is(el, cdef) {
