@@ -287,7 +287,7 @@ class SvgPlus{
   }
 
   get bbox(){
-    let bbox = this.getClientBoundingRect();
+    let bbox = this.getBoundingClientRect();
     let pos = new Vector(bbox);
     let size = new Vector(bbox.width, bbox.height);
     return [pos, size];
