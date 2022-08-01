@@ -28,7 +28,7 @@ By extending the SvgPlus class custom elements can be created. For example
       this.styles = {
         width: size + "px",
         height: size + "px",
-        background: red
+        background: "red"
       }
     }
 
@@ -40,7 +40,9 @@ By adding methods to our class we can add more functionality.
 
     constructor(el){
       super(el);
-      this.styles = {background: "red"};
+      this.styles = {
+        background: "red"
+      };
     }
 
     set size(size) {
