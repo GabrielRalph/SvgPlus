@@ -244,6 +244,7 @@ class Vector {
     b1 = parseVector(b1);
     a2 = parseVector(a2);
     b2 = parseVector(b2);
+
   	// m = y/x
   	let m1 = b1.sub(a1).grad();
   	let m2 = b2.sub(a2).grad();
@@ -255,13 +256,13 @@ class Vector {
     if (!isZero(m1 - m2)) {
       let x = (c2 - c1) / (m1 - m2);
       let y = m1 * x + c1;
-      isec = new Vector(x, y)
+      isec = new Vector(x, y);
     }
 
 		if (!isec.isNaN) {
 			let ab = b1.sub(a1);
-			let ai = i.sub(a1);
-			let kac = ab.dot(ai);
+			let ac = isec.sub(a1);
+			let kac = ab.dot(ac);
 			let kab = ab.dot(ab);
 			if (!(kac > 0 && kab > kac) && onSegment) {
 				isec = null;
