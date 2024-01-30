@@ -496,7 +496,8 @@ class SvgPlus{
     if (errors && errors.length > 0){
       throw doc
     }
-    let psvg = doc.firstChild;
+    doc.querySelectorAll("script").forEach(a => a.remove());
+    let psvg = doc.querySelector("svg");
     let svg = make("svg");
     svg.setAttribute("viewBox", psvg.getAttribute("viewBox"));
     svg.innerHTML = psvg.innerHTML;
