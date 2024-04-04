@@ -203,7 +203,9 @@ function extendable(obj, cdef, plus = "__+") {
   return res;
 }
 
-
+/**
+ * @extends {HTMLElement}
+ */
 class SvgPlus{
   constructor(el){
     el = SvgPlus.parseElement(el)
@@ -286,6 +288,9 @@ class SvgPlus{
     return this._prop_set;
   }
 
+  /**
+   * @return {[Vector, Vector]}
+   */
   get bbox(){
     let bbox = this.getBoundingClientRect();
     let pos = new Vector(bbox);
@@ -293,6 +298,9 @@ class SvgPlus{
     return [pos, size];
   }
 
+   /**
+   * @return {[Vector, Vector]}
+   */
   get svgBBox(){
     let bbox = this.getBBox();
     let pos = new Vector(bbox);
@@ -301,11 +309,16 @@ class SvgPlus{
   }
 
 
-
+  /**
+   * @return {SvgPlus}
+   */
   createChild(){
     return this.makeChild.apply(this, arguments)
   }
 
+  /**
+   * @return {HTMLElement}
+   */
   makeChild(){
     let Name = arguments[0];
     let child;
