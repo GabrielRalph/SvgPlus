@@ -24,6 +24,10 @@ import {Vector, parseVector} from "./vector.js";
  * 
  */
 
+/**
+ * @type {Object<SVGTagName, boolean}
+ * @ignore
+ */
 const SVGTagNames = {
   animate: SVGAnimateElement,
   animateMotion: SVGAnimateMotionElement,
@@ -116,6 +120,7 @@ function isNonNullObject(obj) {return typeof obj === "object" && obj !== null;}
  * (name: SVGTagName, doc: Document) => SVGElement;
  * (name: string, doc: Document) => HTMLElement;
  * }}
+ * @ignore
  */
 const make = (name, doc = document) => {
   let element = null;
@@ -130,6 +135,7 @@ const make = (name, doc = document) => {
 
 /**
  * @type {SVGSVGElement}
+ * @ignore
  */
 const Points = make("svg");
 
@@ -182,6 +188,7 @@ function printChain(cdef) {
  * @param {SvgPlusClass} cdef
  * @param {Object} obj
  * @param {string} [plus="__+"]
+ * @ignore
  */
 function addPrototype(cdef, obj, plus = "__+") {
   if (obj == null || cdef == null) return;
@@ -221,6 +228,7 @@ function addPrototype(cdef, obj, plus = "__+") {
  * @param {string} [plus="__+"]
  * 
  * @return {boolean}
+ * @ignore
  */
 function extend(obj, cdef, plus = "__+"){
   if (isNonNullObject(obj)) {
@@ -249,6 +257,7 @@ function extend(obj, cdef, plus = "__+"){
  * @param {string} [plus="__+"]
  * 
  * @return {boolean}
+ * @ignore
 */
 function extendable(obj, cdef, plus = "__+") {
   let res = false;
@@ -262,6 +271,7 @@ function extendable(obj, cdef, plus = "__+") {
 
 /**
  * @class
+ * @ignore
  */
 function Root(){
 
@@ -270,6 +280,7 @@ function Root(){
 
 /**
  * @extends Element
+ * 
  */
 class SvgPlus extends Root{
   /**
@@ -407,12 +418,13 @@ class SvgPlus extends Root{
   }
 
 
-  /**
-   * @param {(ElementLike|SvgPlusClass)} type
-   * @param {Props} props
-   * @param {any[]} params
+  /** Creates a child SvgPlus element, sets its properties and appends it to itself
+   * @param {(ElementLike|SvgPlusClass)} type Can be provided as an element tag name or an SvgPlus class.
+   * @param {Props} props element properties will be set before appending the newly created element.
+   * @param {any[]} params if a type is given as an SvgPlusClass then the params will be passed to the 
+   *                       constructor of that class when constructing the element.
    * 
-   * @return {SvgPlus}
+   * @return {SvgPlus} Either an SvgPlus element or an instance of the SvgPlusClass if given.
    */
   createChild(type, props = {}, ...params){
     let child;
@@ -491,7 +503,7 @@ class SvgPlus extends Root{
    /**
    * @param {number} l
    * 
-   * @return {boolean}
+   * @return {Vector}
    */
   getVectorAtLength(l) {
     return new Vector(this.getPointAtLength(l));
