@@ -682,10 +682,11 @@ class SvgPlus extends Root{
   /**
    * @param {SvgPlusClass} classDef
    */
-  static defineHTMLElement(classDef){
-    let className = classDef.name.replace(/(\w)([A-Z][^A-Z])/g, "$1-$2").toLowerCase();
-    let props = Object.getOwnPropertyDescriptors(classDef.prototype);
-
+  static defineHTMLElement(classDef, className = null) {
+    if (!className) {
+      className = classDef.name.replace(/(\w)([A-Z][^A-Z])/g, "$1-$2").toLowerCase();
+    }
+    
     let setters = classDef.observedAttributes;
 
     let htmlClass = class extends HTMLElement{
