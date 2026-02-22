@@ -5,7 +5,7 @@ import {Vector, parseVector} from "./vector.js";
  * @typedef {(Element|string)} ElementLike
  * @typedef {{toString(): string}} Serializable
  * @typedef {?(string|number|Serializable)} StringLike
- * @typedef {new(...args: any[]) => SvgPlus} SvgPlusClass
+ * @typedef {new (...args: any[]) => SvgPlus} SvgPlusClass
  * 
  * 
  * @typedef {function(Event): void} EventCallback
@@ -419,17 +419,31 @@ class SvgPlus extends Root{
 
 
   /** Creates a child SvgPlus element, sets its properties and appends it to itself
-   * @param {(ElementLike|SvgPlusClass)} type Can be provided as an element tag name or an SvgPlus class.
-   * @param {Props} props element properties will be set before appending the newly created element.
-   * @param {any[]} params if a type is given as an SvgPlusClass then the params will be passed to the 
-   *                       constructor of that class when constructing the element.
-   * 
-   * @return {SvgPlus} Either an SvgPlus element or an instance of the SvgPlusClass if given.
+   * @template {new (...args: any[]) => SvgPlus} T
+   * @overload
+   * @param {T} type class definition of the element to be created.
+   * @param {Props} props properties to be set on the element before it is appended to the DOM.
+   * @param {...any} args arguments to be passed to the constructor of the class definition provided in type.
+   * @returns {InstanceType<T>}
    */
-  createChild(type, props = {}, ...params){
+  /** Creates a child SvgPlus element, sets its properties and appends it to itself
+   * @overload
+   * @param {ElementLike} type tag name of the element to be created.
+   * @param {Props} props properties to be set on the element before it is appended to the DOM.
+   * @returns {SvgPlus}
+   */
+  /** Creates a child SvgPlus element, sets its properties and appends it to itself
+   * @template {new (...args: any[]) => SvgPlus} T 
+   * @param {ElementLike | T} type type Can be provided as an element tag name or an SvgPlus class.
+   * @param {Props} props props element properties will be set before appending the newly created element.
+   * @param {...any} args args if a type is given as an SvgPlusClass then the params will be passed to the 
+   *                      constructor of that class when constructing the element.
+   * @return {SvgPlus | InstanceType<T>}
+   */
+  createChild(type, props = {}, ...args){
     let child;
     if (type instanceof Function && type.prototype instanceof SvgPlus){
-      child = new type(...params);
+      child = new type(...args);
     }else{
       child = new SvgPlus(type);
     }
