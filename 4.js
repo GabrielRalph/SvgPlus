@@ -11,15 +11,18 @@ import {Vector, parseVector} from "./vector.js";
  * @typedef {function(Event): void} EventCallback
  * @typedef {Object.<string, EventCallback>} Events
  * 
- * @typedef {Object.<string, StringLike>} Styles
+ * @typedef {Object.<string, StringLike>} Styles styles are css styles where the keys are the style names and the values are the style values.
  * 
- * @typedef {?(StringLike|Styles|Events)} PropValue
+ * @typedef {?(StringLike|Styles|Events)} PropValue 
  * 
- * @typedef Props
+ * @typedef Props the props of a html element are the attributes of that element. 
  * @type {Object}
- * @property {Styles} [styles]
- * @property {Styles} [style]
- * @property {Events} [events]
+ * @property {Styles} [styles] an object containing styles to be set on the element.
+ * @property {Styles} [style] an object containing styles to be set on the element.
+ * @property {Events} [events] an object containing event listeners to be added to the element.
+ * @property {string} [content] a string to be set as the innerHTML of the element.
+ * @property {string} [innerHTML] a string to be set as the innerHTML of the element.
+ * @property {string} [class] a string to be set as the class of the element.
  * @property {StringLike} [*]
  * 
  */
@@ -423,7 +426,8 @@ class SvgPlus extends Root{
    * @overload
    * @param {T} type class definition of the element to be created.
    * @param {Props} props properties to be set on the element before it is appended to the DOM.
-   * @param {...any} args arguments to be passed to the constructor of the class definition provided in type.
+   * @param {...ConstructorParameters<T>} args if a type is given as an SvgPlusClass then the params will be passed to the 
+   *                                           constructor of that class when constructing the element.
    * @returns {InstanceType<T>}
    */
   /** Creates a child SvgPlus element, sets its properties and appends it to itself
@@ -436,7 +440,7 @@ class SvgPlus extends Root{
    * @template {new (...args: any[]) => SvgPlus} T 
    * @param {ElementLike | T} type type Can be provided as an element tag name or an SvgPlus class.
    * @param {Props} props props element properties will be set before appending the newly created element.
-   * @param {...any} args args if a type is given as an SvgPlusClass then the params will be passed to the 
+   * @param {...ConstructorParameters<T>} args args if a type is given as an SvgPlusClass then the params will be passed to the 
    *                      constructor of that class when constructing the element.
    * @return {SvgPlus | InstanceType<T>}
    */
