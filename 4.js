@@ -317,8 +317,13 @@ class SvgPlus extends Root{
     this._style_set = typeof this._style_set != 'object' ? {} : this._style_set;
     for (let style in styles){
       var value = styles[style];
-      this.style.setProperty(style, value);
-      this._style_set[style] = value;
+      if (value === null || value === undefined) {
+        this.style.removeProperty(style);
+        delete this._style_set[style];
+      } else {
+        this.style.setProperty(style, value);
+        this._style_set[style] = value;
+      }
     }
   }
 
