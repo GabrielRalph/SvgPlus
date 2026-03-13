@@ -427,27 +427,27 @@ class SvgPlus extends Root{
 
 
   /** Creates a child SvgPlus element, sets its properties and appends it to itself
-   * @template {new (...args: any[]) => SvgPlus} T
+  
+   * @template {new (...args: any[]) => SvgPlus} TypeClass
+   * 
+   * @param {ElementLike | TypeClass} type type Can be provided as an element tag name or an SvgPlus class.
+   * @param {Props} props props element properties will be set before appending the newly created element.
+   * @param {...ConstructorParameters<T>} args args if a type is given as an SvgPlusClass then the params will be passed to the 
+   *                      constructor of that class when constructing the element.
+   * @return {SvgPlus | InstanceType<TypeClass>} the newly created child element.
+   * 
    * @overload
-   * @param {T} type class definition of the element to be created.
+   * @param {TypeClass} type class definition of the element to be created.
    * @param {Props} props properties to be set on the element before it is appended to the DOM.
-   * @param {...ConstructorParameters<T>} args if a type is given as an SvgPlusClass then the params will be passed to the 
-   *                                           constructor of that class when constructing the element.
-   * @returns {InstanceType<T>}
-   */
-  /** Creates a child SvgPlus element, sets its properties and appends it to itself
+   * @param {...ConstructorParameters<TypeClass>} args if a type is given as an SvgPlusClass then the params will be passed to the 
+   * @returns {InstanceType<TypeClass}
+   *
+   * 
    * @overload
    * @param {ElementLike} type tag name of the element to be created.
    * @param {Props} props properties to be set on the element before it is appended to the DOM.
    * @returns {SvgPlus}
-   */
-  /** Creates a child SvgPlus element, sets its properties and appends it to itself
-   * @template {new (...args: any[]) => SvgPlus} T 
-   * @param {ElementLike | T} type type Can be provided as an element tag name or an SvgPlus class.
-   * @param {Props} props props element properties will be set before appending the newly created element.
-   * @param {...ConstructorParameters<T>} args args if a type is given as an SvgPlusClass then the params will be passed to the 
-   *                      constructor of that class when constructing the element.
-   * @return {SvgPlus | InstanceType<T>}
+   *
    */
   createChild(type, props = {}, ...args){
     let child;
