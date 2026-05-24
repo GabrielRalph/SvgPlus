@@ -1,4 +1,4 @@
-import { SvgPlus } from "./SvgPlus/4.js";
+import { SvgPlus } from "./4.js";
 
 const LOADED_STYLES = {};
 let isCSSConstructor = true;
