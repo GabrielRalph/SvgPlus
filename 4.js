@@ -28,7 +28,7 @@ import {Vector, parseVector} from "./vector.js";
  */
 
 /**
- * @type {Object<SVGTagName, boolean}
+ * @type {Object<SVGTagName, boolean>}
  * @ignore
  */
 const SVGTagNames = {
@@ -106,10 +106,6 @@ const SVGTagNames = {
   view: true,
 };
 
-
-function warn(e){
-  console.warning(e)
-}
 
 const ObjectClass = Object.getPrototypeOf(Object);
 
@@ -377,7 +373,7 @@ class SvgPlus extends Root{
    */
   set events(events) {
     if (typeof events !== 'object' || events === null){
-      throw `Error setting events:\nEvents must be set to an object, not ${typeof styles}`
+      throw `Error setting events:\nEvents must be set to an object, not ${typeof events}`
     }
     // Check that all events provide valid callbacks
     for (let key in events) {

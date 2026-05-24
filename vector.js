@@ -241,7 +241,7 @@ class Vector {
   get isNaN() {return isNaN(this._x) || isNaN(this._y)}
   get isZero(){return (isZero(this._x) && isZero(this._y))}
 
-  static parseVector(x = 0, y = x) {return parseVector;}
+  static parseVector(...args) {return parseVector(...args);}
   static intersection(a1, b1, a2, b2, onSegment = true) {
     a1 = parseVector(a1);
     b1 = parseVector(b1);
