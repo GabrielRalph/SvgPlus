@@ -948,7 +948,7 @@ class SvgPath extends SvgPlus{
       let ps = parseNumbers(get("points"));
 
       let m = "M";
-      for (let i = 0; i < ps.lenght; i += 2) {
+      for (let i = 0; i < ps.length; i += 2) {
         let v = new Vector(ps[i], ps[i+1])
         path[m](v);
         m = "L";
