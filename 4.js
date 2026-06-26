@@ -1,4 +1,4 @@
-import {Vector, parseVector} from "./vector.js";
+import {BBox, Vector, parseVector} from "./vector.js";
 
 /**
  * @typedef {('animate'|'animateMotion'|'animateTransform'|'circle'|'clipPath'|'color-profile'|'defs'|'desc'|'discard'|'ellipse'|'feBlend'|'feColorMatrix'|'feComponentTransfer'|'feComposite'|'feConvolveMatrix'|'feDiffuseLighting'|'feDisplacementMap'|'feDistantLight'|'feDropShadow'|'feFlood'|'feFuncA'|'feFuncB'|'feFuncG'|'feFuncR'|'feGaussianBlur'|'feImage'|'feMerge'|'feMergeNode'|'feMorphology'|'feOffset'|'fePointLight'|'feSpecularLighting'|'feSpotLight'|'feTile'|'feTurbulence'|'filter'|'foreignObject'|'g'|'hatch'|'hatchpath'|'image'|'line'|'linearGradient'|'marker'|'mask'|'mesh'|'meshgradient'|'meshpatch'|'meshrow'|'metadata'|'mpath'|'path'|'pattern'|'polygon'|'polyline'|'radialGradient'|'rect'|'script'|'set'|'solidcolor'|'stop'|'style'|'svg'|'switch'|'symbol'|'text'|'textPath'|'title'|'tspan'|'unknown'|'use'|'view')} SVGTagName
@@ -402,23 +402,23 @@ class SvgPlus extends Root{
   }
 
   /**
-   * @return {[Vector, Vector]}
+   * @return {BBox}
    */
   get bbox(){
     let bbox = this.getBoundingClientRect();
     let pos = new Vector(bbox);
     let size = new Vector(bbox.width, bbox.height);
-    return [pos, size];
+    return new BBox(pos, size);
   }
 
    /**
-   * @return {[Vector, Vector]}
+   * @return {BBox}
    */
   get svgBBox(){
     let bbox = this.getBBox();
     let pos = new Vector(bbox);
     let size = new Vector(bbox.width, bbox.height);
-    return [pos, size];
+    return new BBox(pos, size);
   }
 
 

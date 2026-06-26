@@ -278,4 +278,85 @@ class Vector {
   }
 }
 
-export {Vector, parseVector}
+
+class BBox {
+    constructor(pos, size) {
+        this.pos = new Vector(pos);
+        this.size =  new Vector(size);
+    }
+
+    *[Symbol.iterator]() {
+      yield this.pos;
+      yield this.size;
+    }
+
+    get [0]() { return this.pos; }
+    get [1]() { return this.size; }
+
+    union(other) {
+        const minX = Math.min(this.pos.x, other.pos.x);
+        const minY = Math.min(this.pos.y, other.pos.y);
+        const maxX = Math.max(this.pos.x + this.size.x, other.pos.x + other.size.x);
+        const maxY = Math.max(this.pos.y + this.size.y, other.pos.y + other.size.y);
+        return new BBox(new Vector(minX, minY), new Vector(maxX - minX, maxY - minY));
+    }
+
+
+    contains(point) {
+        point = new Vector(point);
+        return (point.x >= this.pos.x && point.x <= this.pos.x + this.size.x &&
+                point.y >= this.pos.y && point.y <= this.pos.y + this.size.y);
+    }
+
+
+    pad(x, y = x) {
+        return new BBox(this.pos.sub(new Vector(x, y)), this.size.add(new Vector(2*x, 2*y)));
+    }
+
+    toString() {
+        return `${this.pos.x} ${this.pos.y} ${this.size.x} ${this.size.y}`;
+    }
+
+    get bottom() {  
+        return this.pos.y + this.size.y;
+    }
+
+    get right() {
+        return this.pos.x + this.size.x;
+    }
+
+    get top() {
+        return this.pos.y;
+    }
+
+    get left() {
+        return this.pos.x;
+    }
+
+    static fromPoints(points, flipY = false) {
+        let minX = null;
+        let minY = null;
+        let maxX = null;
+        let maxY = null;
+        for (let point of points) {
+            if (!(point instanceof Vector)) {
+                point = new Vector(point);
+            }
+            if (minX === null || point.x < minX) minX = point.x;
+            if (minY === null || point.y < minY) minY = point.y;
+            if (maxX === null || point.x > maxX) maxX = point.x;
+            if (maxY === null || point.y > maxY) maxY = point.y;
+        }
+        if (flipY) {
+            const temp = minY;
+            minY = maxY;
+            maxY = temp;
+        }
+        return new BBox(new Vector(minX, minY), new Vector(maxX - minX, maxY - minY));
+    }
+
+}
+
+
+
+export {Vector, BBox, parseVector}
