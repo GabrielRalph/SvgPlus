@@ -40,7 +40,7 @@ export class ShadowElement extends SvgPlus {
     constructor(el, name = el) {
         super(el);
         this.attachShadow({mode: "open"});
-        this._styleLoadingPromise = this.loadStyles();
+        this.loadStyles();
         let root;
         if (typeof name === "string") {
             this._root = /** @type {RootElementType} */ new SvgPlus(name);
@@ -82,26 +82,45 @@ export class ShadowElement extends SvgPlus {
         return this.root.createChild(type, props, ...args);
     }
 
+    /**
+     * Waits for the styles to be loaded and applied to the shadow root.
+     * If the styles are already loaded, it resolves immediately.
+     * @returns {Promise<void>} Resolves when the styles have been loaded and applied.
+     */
     async waitStyles(){
         if (this._stylesProm instanceof Promise) {
             await this._stylesProm
         }
     }
 
+    /**
+     * Waits for the styles to be loaded and applied to the shadow root.
+     * If the styles are already loaded, it resolves immediately.
+     * @returns {Promise<void>} Resolves when the styles have been loaded and applied.
+     */
     async loadStyles(url = this.usedStyleSheets) {
-        this._stylesProm = ShadowElement.loadStyleSheets(url);
-        let styles = await this._stylesProm;
-
-        if (isCSSConstructor) {
-            this.shadowRoot.adoptedStyleSheets = [...this.shadowRoot.adoptedStyleSheets, ...styles];
-        } else {
-            for (let style of styles) {
-                this.shadowRoot.appendChild(style())
-            }
+        if (!(this._stylesProm instanceof Promise)) {
+            this._stylesProm = (async () => {
+                let styles = await ShadowElement.loadStyleSheets(url);
+                if (isCSSConstructor) {
+                    this.shadowRoot.adoptedStyleSheets = [...this.shadowRoot.adoptedStyleSheets, ...styles];
+                } else {
+                    for (let style of styles) {
+                        this.shadowRoot.appendChild(style())
+                    }
+                }
+                return styles;
+            })();
         }
-        return styles;
+        return await this._stylesProm;
     }
 
+    /**
+     * Loads the specified style sheets and applies them to the shadow root.
+     * If the styles are already loaded, it reuses the cached versions.
+     * @param {string|string[]} url - The URL(s) of the style sheets to load.
+     * @returns {Promise<void>} Resolves when the styles have been loaded and applied.
+     */
     static async loadStyleSheets(urls = this.usedStyleSheets){
         let styles = []
         if (typeof urls === "string") urls = [urls];
