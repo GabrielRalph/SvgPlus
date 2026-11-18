@@ -1,7 +1,7 @@
 import { SvgPlus } from "./4.js";
 
 const LOADED_STYLES = {};
-const CSS_STYLE_SHEET_CACHE = new Map();
+const CSS_STYLE_SHEET_CACHE = new WeakMap();
 
 function supportsConstructedSheets(win) {
     try {
@@ -12,25 +12,24 @@ function supportsConstructedSheets(win) {
     }
 }
 
-function newCSSStyleSheet(text, win, cacheKey, useConstructor = true) {
+function newCSSStyleSheet(text, win, url, useCache, useConstructor = true) {
     let style = null;
-    let useCache = typeof cacheKey === "string"; 
     if (useConstructor) {
-        console.log("Creating new CSSStyleSheet with text:", cacheKey);
         if (!CSS_STYLE_SHEET_CACHE.has(win)) CSS_STYLE_SHEET_CACHE.set(win, {})
         let CSET = CSS_STYLE_SHEET_CACHE.get(win);
 
         // if using cache and style sheet exists in cache, use it
-        if (useCache && cacheKey in CSET) {
-            style = CSET[cacheKey];
+        if (useCache && url in CSET) {
+            style = CSET[url];
         // otherwise, create a new style sheet 
         } else {
-            style = new win.CSSStyleSheet()
+            let baseURL = new URL(url, win.location.href).href;
+            style = new win.CSSStyleSheet({baseURL})
             style.replaceSync(text);
 
             // cache the newly created style sheet if caching is enabled
             if (useCache) {
-                CSET[cacheKey] = style;
+                CSET[url] = style;
             }
         } 
 
@@ -38,9 +37,31 @@ function newCSSStyleSheet(text, win, cacheKey, useConstructor = true) {
     // do not support constructed style sheets
     } else {
         style = win.document.createElement("style")
-        style.innerHTML = text;
+        style.textContent = text;
     }
     return style;
+}
+
+/**
+ * Rewrites relative url(...) references in CSS text to absolute URLs, resolved
+ * against the stylesheet's own URL. Needed because constructed style sheets and
+ * <style> elements otherwise resolve them against the document, and the
+ * CSSStyleSheet `baseURL` option is not supported by all browsers.
+ * Absolute URLs (any scheme, e.g. data:, http:), protocol-relative URLs and
+ * fragment-only references (#id) are left untouched.
+ * @param {string} text
+ * @param {string} baseURL
+ * @returns {string}
+ */
+function absolutizeCSSURLs(text, baseURL) {
+    return text.replace(/url\(\s*(['"]?)(.*?)\1\s*\)/gi, (match, _quote, ref) => {
+        if (ref === "" || /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(ref)) return match;
+        try {
+            return `url("${new URL(ref, baseURL).href}")`;
+        } catch (e) {
+            return match;
+        }
+    });
 }
 
 async function getCSSText(url) {
@@ -51,6 +72,7 @@ async function getCSSText(url) {
                 let response = await fetch(url);
                 if (response.ok) {
                     text = await response.text();
+                    text = absolutizeCSSURLs(text, response.url);
                 }
             } catch (e) {
                 text = null;
@@ -71,7 +93,8 @@ async function loadCSSStyleSheets(urls, win, useCache = true) {
         } else {
             style = newCSSStyleSheet(
                 text, win,  
-                useCache ? urls[i] : undefined,
+                urls[i],
+                useCache,
                 useConstructor
             );
         }
@@ -87,8 +110,13 @@ async function loadCSSStyleSheets(urls, win, useCache = true) {
  */
 export class ShadowElement extends SvgPlus {
     /**
-     * @param {string | Element} el element or tag name to be used as the root of the shadow element.
-     * @param {string | RootElementType} name element or tag name to be used as the root of the shadow element. If a string is provided, an SvgPlus element with that tag name will be created and used as the root. If an SvgPlus element is provided, it will be used directly as the root. If not provided, the element created from `el` will be used as the root.
+     * @param {string | Element} el element or tag name to be used as the host element (the element the shadow root is attached to).
+     * @param {string | RootElementType} [name=el] element or tag name to be used as the root element inside the shadow root.
+     *   If a string is provided, a new SvgPlus element with that tag name is created and used as the root.
+     *   If an SvgPlus element is provided, it is used directly as the root; it must not be the host element itself.
+     *   If omitted, defaults to `el`: this only works when `el` is a tag name (a second element with the same tag
+     *   is created as the root). If `el` is an element, `name` must be provided.
+     * @throws {Error} if `name` is not a tag name or an SvgPlus element other than the host.
      */
     constructor(el, name = el) {
         super(el);
@@ -96,8 +124,10 @@ export class ShadowElement extends SvgPlus {
         this.loadStyles();
         if (typeof name === "string") {
             this._root = /** @type {RootElementType} */ new SvgPlus(name);
-        } else if (SvgPlus.is(name, SvgPlus)) {
+        } else if (SvgPlus.is(name, SvgPlus) && name !== el) {
             this._root = name;
+        } else {
+            throw new Error("Invalid root element for ShadowElement");
         }
 
         this._root.toggleAttribute("shadow");
@@ -146,9 +176,16 @@ export class ShadowElement extends SvgPlus {
     }
 
     /**
-     * Waits for the styles to be loaded and applied to the shadow root.
-     * If the styles are already loaded, it resolves immediately.
-     * @returns {Promise<void>} Resolves when the styles have been loaded and applied.
+     * Loads style sheets and applies them to the shadow root. Uses adopted style sheets when
+     * supported, otherwise appends `<style>` elements (replacing any previously appended).
+     * Only loads once: if a load has already started, this waits for it and ignores the
+     * options. Use {@link ShadowElement#reloadStyles} to load again.
+     * Errors are logged, not thrown, so the promise always resolves.
+     * @param {Object} [options]
+     * @param {string | (string | string[])[]} [options.sources=this.usedStyleSheets] URL(s) of the style sheets to load.
+     * @param {Window} [options.window=window] window whose CSSStyleSheet / document is used to create the sheets.
+     * @param {boolean} [options.useCache=true] whether to reuse (and cache) constructed style sheets per URL.
+     * @returns {Promise<void>} Resolves when loading has finished (successfully or not).
      */
     async loadStyles({
         sources = this.usedStyleSheets,
@@ -157,27 +194,35 @@ export class ShadowElement extends SvgPlus {
     } = {}) {
         if (!(this._stylesProm instanceof Promise)) {
             this._stylesProm = (async () => {
-                let [styles, useConstructor] = await ShadowElement.loadStyleSheets(sources, {window: win, useCache});
-                if (useConstructor) {
-                    this.shadowRoot.adoptedStyleSheets = [...styles];
-                } else {
-                    // remove all styles previously appended to the shadow root
-                    [...this.shadowRoot.children].forEach(child => {
-                        if (child.tagName === 'STYLE') {
-                            this.shadowRoot.removeChild(child);
+                try {
+                    let [styles, useConstructor] = await ShadowElement.loadStyleSheets(sources, {window: win, useCache});
+                    if (useConstructor) {
+                        this.shadowRoot.adoptedStyleSheets = [...styles];
+                    } else {
+                        // remove all styles previously appended to the shadow root
+                        [...this.shadowRoot.children].forEach(child => {
+                            if (child.tagName === 'STYLE') {
+                                this.shadowRoot.removeChild(child);
+                            }
+                        });
+    
+                        for (let style of styles) {
+                            this.shadowRoot.appendChild(style)
                         }
-                    });
-
-                    for (let style of styles) {
-                        this.shadowRoot.appendChild(style)
                     }
+                } catch (e) {
+                    console.error("Failed to load styles:", e);
                 }
-                return styles;
             })();
         }
-        return await this._stylesProm;
+        await this._stylesProm;
     }
 
+    /**
+     * Waits for any current load to finish, then loads and applies the style sheets again.
+     * @param {Parameters<ShadowElement["loadStyles"]>[0]} [options] same options as {@link ShadowElement#loadStyles}.
+     * @returns {Promise<void>}
+     */
     async reloadStyles(options = {}) {
         await this.waitStyles();    
         this._stylesProm = null;
@@ -185,10 +230,16 @@ export class ShadowElement extends SvgPlus {
     }
 
     /**
-     * Loads the specified style sheets and applies them to the shadow root.
-     * If the styles are already loaded, it reuses the cached versions.
-     * @param {string|string[]} url - The URL(s) of the style sheets to load.
-     * @returns {Promise<void>} Resolves when the styles have been loaded and applied.
+     * Fetches the specified style sheets and creates style sheet objects from them. Does not apply them
+     * to any shadow root. CSS text is cached per URL; constructed sheets are cached per window and URL
+     * when `useCache` is true. URLs that fail to load are skipped with a warning.
+     * @param {string | (string | string[])[]} [urls=this.usedStyleSheets] URL(s) of the style sheets to load.
+     *   Nested arrays are flattened one level; non-string entries are ignored with a warning.
+     * @param {Object} [options]
+     * @param {Window} [options.window=window] window whose CSSStyleSheet / document is used to create the sheets.
+     * @param {boolean} [options.useCache=true] whether to reuse (and cache) constructed style sheets per URL.
+     * @returns {Promise<[(CSSStyleSheet | HTMLStyleElement)[], boolean]>} the loaded sheets, and whether they are
+     *   constructed `CSSStyleSheet`s (true, for `adoptedStyleSheets`) or `<style>` elements (false).
      */
     static async loadStyleSheets(urls = this.usedStyleSheets, {
         window: win = window, 
