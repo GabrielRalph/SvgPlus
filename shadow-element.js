@@ -1,7 +1,7 @@
 import { SvgPlus } from "./4.js";
 
 const LOADED_STYLES = {};
-const CSS_STYLE_SHEET_CACHE = {};
+const CSS_STYLE_SHEET_CACHE = new Map();
 
 function supportsConstructedSheets(win) {
     try {
@@ -12,13 +12,17 @@ function supportsConstructedSheets(win) {
     }
 }
 
-function newCSSStyleSheet(text, win, doc, useConstructor = true, cacheKey) {
+function newCSSStyleSheet(text, win, cacheKey, useConstructor = true) {
     let style = null;
     let useCache = typeof cacheKey === "string"; 
     if (useConstructor) {
+        console.log("Creating new CSSStyleSheet with text:", cacheKey);
+        if (!CSS_STYLE_SHEET_CACHE.has(win)) CSS_STYLE_SHEET_CACHE.set(win, {})
+        let CSET = CSS_STYLE_SHEET_CACHE.get(win);
+
         // if using cache and style sheet exists in cache, use it
-        if (useCache && cacheKey in CSS_STYLE_SHEET_CACHE) {
-            style = CSS_STYLE_SHEET_CACHE[cacheKey];
+        if (useCache && cacheKey in CSET) {
+            style = CSET[cacheKey];
         // otherwise, create a new style sheet 
         } else {
             style = new win.CSSStyleSheet()
@@ -26,14 +30,14 @@ function newCSSStyleSheet(text, win, doc, useConstructor = true, cacheKey) {
 
             // cache the newly created style sheet if caching is enabled
             if (useCache) {
-                CSS_STYLE_SHEET_CACHE[cacheKey] = style;
+                CSET[cacheKey] = style;
             }
         } 
 
     // plain style element fallback for browsers that 
     // do not support constructed style sheets
     } else {
-        style = doc.createElement("style")
+        style = win.document.createElement("style")
         style.innerHTML = text;
     }
     return style;
@@ -57,13 +61,22 @@ async function getCSSText(url) {
     return await LOADED_STYLES[url]
 }
 
-async function loadCSSStyleSheets(urls, win, doc, useCache = true) {
+async function loadCSSStyleSheets(urls, win, useCache = true) {
     let useConstructor = supportsConstructedSheets(win);
     let texts = await Promise.all(urls.map(getCSSText));
-    let styleSheets = texts.map((text, i) => newCSSStyleSheet(
-        text, win, doc, useConstructor, 
-        useCache ? urls[i] : undefined
-    ));
+    let styleSheets = texts.map((text, i) => {
+        let style = null
+        if (text === null) {
+            console.warn(`ShadowElement CSS: Failed to load CSS from ${urls[i]}`);
+        } else {
+            style = newCSSStyleSheet(
+                text, win,  
+                useCache ? urls[i] : undefined,
+                useConstructor
+            );
+        }
+        return style;
+    }).filter(style => style !== null);
     return [styleSheets, useConstructor];
 }
 
@@ -137,17 +150,15 @@ export class ShadowElement extends SvgPlus {
      * If the styles are already loaded, it resolves immediately.
      * @returns {Promise<void>} Resolves when the styles have been loaded and applied.
      */
-    async loadStyles(urls = this.usedStyleSheets, win = window, doc = document, useCache = true) {
+    async loadStyles({
+        sources = this.usedStyleSheets,
+        window: win = window, 
+        useCache = true,
+    } = {}) {
         if (!(this._stylesProm instanceof Promise)) {
             this._stylesProm = (async () => {
-                let [styles, useConstructor] = await ShadowElement.loadStyleSheets(urls, win, doc, useCache);
+                let [styles, useConstructor] = await ShadowElement.loadStyleSheets(sources, {window: win, useCache});
                 if (useConstructor) {
-                    console.log(
-                        "old",
-                        this.shadowRoot.adoptedStyleSheets.map(s => s instanceof window.CSSStyleSheet),
-                        "new",
-                        styles.map(s => s instanceof window.CSSStyleSheet),
-                    )
                     this.shadowRoot.adoptedStyleSheets = [...styles];
                 } else {
                     // remove all styles previously appended to the shadow root
@@ -167,11 +178,10 @@ export class ShadowElement extends SvgPlus {
         return await this._stylesProm;
     }
 
-    async reloadStyles(usedStyleSheets, win, doc, useCache) {
-        usedStyleSheets = usedStyleSheets || this.usedStyleSheets;
+    async reloadStyles(options = {}) {
         await this.waitStyles();    
         this._stylesProm = null;
-        return await this.loadStyles(usedStyleSheets, win, doc, useCache);
+        return await this.loadStyles(options);
     }
 
     /**
@@ -180,12 +190,25 @@ export class ShadowElement extends SvgPlus {
      * @param {string|string[]} url - The URL(s) of the style sheets to load.
      * @returns {Promise<void>} Resolves when the styles have been loaded and applied.
      */
-    static async loadStyleSheets(urls = this.usedStyleSheets, win = window, doc = document, useCache = true){
+    static async loadStyleSheets(urls = this.usedStyleSheets, {
+        window: win = window, 
+        useCache = true
+    } = {}){
         let [styles, useConstructor] = [[], false];
         if (typeof urls === "string") urls = [urls];
         if (Array.isArray(urls)) {
+            urls = urls.flatMap(u => {
+                if (Array.isArray(u)) {
+                    return u;
+                } else if (typeof u !== "string") {
+                    console.warn(`Invalid style sheet URL:`, u);
+                    return null;
+                } else {
+                    return [u];
+                }
+            });
             urls = urls.filter(u => typeof u === "string");
-            [styles, useConstructor] = await loadCSSStyleSheets(urls, win, doc, useCache);
+            [styles, useConstructor] = await loadCSSStyleSheets(urls, win, useCache);
         } else {
             console.warn(`Invalid style sheet URL(s):`, urls);
         }
