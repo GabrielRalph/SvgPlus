@@ -17,7 +17,7 @@ function newCSSStyleSheet(text, win, doc, useConstructor = true, cacheKey) {
     let useCache = typeof cacheKey === "string"; 
     if (useConstructor) {
         // if using cache and style sheet exists in cache, use it
-        if (useCache && text in CSS_STYLE_SHEET_CACHE) {
+        if (useCache && cacheKey in CSS_STYLE_SHEET_CACHE) {
             style = CSS_STYLE_SHEET_CACHE[cacheKey];
         // otherwise, create a new style sheet 
         } else {
@@ -58,9 +58,6 @@ async function getCSSText(url) {
 }
 
 async function loadCSSStyleSheets(urls, win, doc, useCache = true) {
-    if (win !== window) {
-        console.log("Loading CSS style sheets:", win, useCache ? "using cache" : "not using cache");
-    }
     let useConstructor = supportsConstructedSheets(win);
     let texts = await Promise.all(urls.map(getCSSText));
     let styleSheets = texts.map((text, i) => newCSSStyleSheet(
@@ -145,6 +142,12 @@ export class ShadowElement extends SvgPlus {
             this._stylesProm = (async () => {
                 let [styles, useConstructor] = await ShadowElement.loadStyleSheets(urls, win, doc, useCache);
                 if (useConstructor) {
+                    console.log(
+                        "old",
+                        this.shadowRoot.adoptedStyleSheets.map(s => s instanceof window.CSSStyleSheet),
+                        "new",
+                        styles.map(s => s instanceof window.CSSStyleSheet),
+                    )
                     this.shadowRoot.adoptedStyleSheets = [...styles];
                 } else {
                     // remove all styles previously appended to the shadow root
