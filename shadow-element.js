@@ -1,33 +1,76 @@
 import { SvgPlus } from "./4.js";
 
 const LOADED_STYLES = {};
-let isCSSConstructor = true;
-let StylesPolyfilElement = null
-try {
-    let a = new CSSStyleSheet();
-} catch (e) {
-    isCSSConstructor = false;
-    let styleDump = new SvgPlus("style-dump");
-    styleDump.styles = {display: "none"};
-    styleDump.attachShadow({mode: "open"});
-    document.body.appendChild(styleDump);
-    StylesPolyfilElement = styleDump;
-}
+const CSS_STYLE_SHEET_CACHE = {};
 
-async function newCSSStyleSheet(text) {
-    if (isCSSConstructor) {
-        let style = new CSSStyleSheet()
-        style.replaceSync(text);
-        return style;
-    } else {
-        let styleSheetMaker = () => {
-            let style = document.createElement("style")
-            style.innerHTML = text;
-            return style;
-        }
-        return styleSheetMaker;
+function supportsConstructedSheets(win) {
+    try {
+        new win.CSSStyleSheet();
+        return "adoptedStyleSheets" in win.Document.prototype;
+    } catch (e) {
+        return false;
     }
 }
+
+function newCSSStyleSheet(text, win, doc, useConstructor = true, cacheKey) {
+    let style = null;
+    let useCache = typeof cacheKey === "string"; 
+    if (useConstructor) {
+        // if using cache and style sheet exists in cache, use it
+        if (useCache && text in CSS_STYLE_SHEET_CACHE) {
+            style = CSS_STYLE_SHEET_CACHE[cacheKey];
+        // otherwise, create a new style sheet 
+        } else {
+            style = new win.CSSStyleSheet()
+            style.replaceSync(text);
+
+            // cache the newly created style sheet if caching is enabled
+            if (useCache) {
+                CSS_STYLE_SHEET_CACHE[cacheKey] = style;
+            }
+        } 
+
+    // plain style element fallback for browsers that 
+    // do not support constructed style sheets
+    } else {
+        style = doc.createElement("style")
+        style.innerHTML = text;
+    }
+    return style;
+}
+
+async function getCSSText(url) {
+    if (!(url in LOADED_STYLES)) {
+        LOADED_STYLES[url] = (async () => {
+            let text = null;
+            try {
+                let response = await fetch(url);
+                if (response.ok) {
+                    text = await response.text();
+                }
+            } catch (e) {
+                text = null;
+            }
+            return text;
+        })()
+    }
+    return await LOADED_STYLES[url]
+}
+
+async function loadCSSStyleSheets(urls, win, doc, useCache = true) {
+    if (win !== window) {
+        console.log("Loading CSS style sheets:", win, useCache ? "using cache" : "not using cache");
+    }
+    let useConstructor = supportsConstructedSheets(win);
+    let texts = await Promise.all(urls.map(getCSSText));
+    let styleSheets = texts.map((text, i) => newCSSStyleSheet(
+        text, win, doc, useConstructor, 
+        useCache ? urls[i] : undefined
+    ));
+    return [styleSheets, useConstructor];
+}
+
+
 
 /**
  * @template {SvgPlus} RootElementType
@@ -97,15 +140,22 @@ export class ShadowElement extends SvgPlus {
      * If the styles are already loaded, it resolves immediately.
      * @returns {Promise<void>} Resolves when the styles have been loaded and applied.
      */
-    async loadStyles(url = this.usedStyleSheets) {
+    async loadStyles(urls = this.usedStyleSheets, win = window, doc = document, useCache = true) {
         if (!(this._stylesProm instanceof Promise)) {
             this._stylesProm = (async () => {
-                let styles = await ShadowElement.loadStyleSheets(url);
-                if (isCSSConstructor) {
-                    this.shadowRoot.adoptedStyleSheets = [...this.shadowRoot.adoptedStyleSheets, ...styles];
+                let [styles, useConstructor] = await ShadowElement.loadStyleSheets(urls, win, doc, useCache);
+                if (useConstructor) {
+                    this.shadowRoot.adoptedStyleSheets = [...styles];
                 } else {
+                    // remove all styles previously appended to the shadow root
+                    [...this.shadowRoot.children].forEach(child => {
+                        if (child.tagName === 'STYLE') {
+                            this.shadowRoot.removeChild(child);
+                        }
+                    });
+
                     for (let style of styles) {
-                        this.shadowRoot.appendChild(style())
+                        this.shadowRoot.appendChild(style)
                     }
                 }
                 return styles;
@@ -114,37 +164,29 @@ export class ShadowElement extends SvgPlus {
         return await this._stylesProm;
     }
 
+    async reloadStyles(usedStyleSheets, win, doc, useCache) {
+        usedStyleSheets = usedStyleSheets || this.usedStyleSheets;
+        await this.waitStyles();    
+        this._stylesProm = null;
+        return await this.loadStyles(usedStyleSheets, win, doc, useCache);
+    }
+
     /**
      * Loads the specified style sheets and applies them to the shadow root.
      * If the styles are already loaded, it reuses the cached versions.
      * @param {string|string[]} url - The URL(s) of the style sheets to load.
      * @returns {Promise<void>} Resolves when the styles have been loaded and applied.
      */
-    static async loadStyleSheets(urls = this.usedStyleSheets){
-        let styles = []
+    static async loadStyleSheets(urls = this.usedStyleSheets, win = window, doc = document, useCache = true){
+        let [styles, useConstructor] = [[], false];
         if (typeof urls === "string") urls = [urls];
         if (Array.isArray(urls)) {
-            let proms = [...new Set(urls)].map(async url => {
-                if (!(url in LOADED_STYLES)) {
-                    let prom = async () => {
-                        try {
-                            let res = await fetch(url);
-                            let text = await res.text();
-                            let style = await newCSSStyleSheet(text)
-                            return style;
-                        } catch (e) {
-                            console.warn(`Failed to load style sheet: ${url}`, e);
-                            return null;
-                        }
-                    }
-                    LOADED_STYLES[url] = prom();
-                }
-                return LOADED_STYLES[url]
-            });
-            styles = await Promise.all(proms);
+            urls = urls.filter(u => typeof u === "string");
+            [styles, useConstructor] = await loadCSSStyleSheets(urls, win, doc, useCache);
+        } else {
+            console.warn(`Invalid style sheet URL(s):`, urls);
         }
-
-        return styles;
+        return [styles, useConstructor];
     }
 
     static get usedStyleSheets(){
